@@ -5,11 +5,19 @@ import serial.tools.list_ports
 import json
 import time
 import math
+from pymongo import MongoClient
+import certifi
+
 
 # Define color constants
 RED = [255, 0, 0]
 BLACK = [0, 0, 0]
 WHITE = [255, 255, 255]
+
+uri = "mongodb+srv://aleniriskic:0hZpyfFParfakoMe@aquabotcluster.lmorwiv.mongodb.net/?retryWrites=true&w=majority"
+client = MongoClient(uri, tlsCAFile=certifi.where())
+db = client.RangeData  # Replace with your database name
+collection = db.trip1
 
 
 class UWB:
@@ -157,7 +165,7 @@ def draw_uwb(uwb):
 
 def read_data():
     """
-    Reads the data from the serial port and updates the UWB objects.
+    Reads the data from the serial port, updates the UWB objects, and uploads the data to MongoDB.
     """
     line = ser.readline().decode("UTF-8").replace("\n", "")
 
@@ -168,6 +176,17 @@ def read_data():
 
         tag[data["id"]].list = data["range"]
         tag[data["id"]].cal()
+
+        # Add anchor coordinates to data
+        data["anchor_coordinates"] = [
+            {"x": A0X, "y": A0Y},
+            {"x": A1X, "y": A1Y},
+            {"x": A2X, "y": A2Y},
+            {"x": A3X, "y": A3Y},
+        ]
+
+        # Insert data into MongoDB
+        collection.insert_one(data)
 
     except ValueError:
         print("[LOG]" + line)

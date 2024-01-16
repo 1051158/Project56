@@ -128,8 +128,8 @@ void logoshow(void)
     // Display the content on the display
     display.display();
 
-    // Delay for 2 seconds
-    delay(2000);
+    // Delay for 10 milliseconds
+    delay(10);
 }
 
 // Function to analyze range data

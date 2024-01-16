@@ -138,7 +138,7 @@ void logoshow(void)
 
     display.display();
 
-    delay(2000);
+    delay(10);
 }
 
 // Function to send AT command and receive response

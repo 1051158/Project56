@@ -115,7 +115,7 @@ void logoshow(void)
     display.setCursor(0, 40);
     display.println(F("A0"));
     display.display();
-    delay(2000);
+    delay(10);
 }
 
 // Function to send AT command and receive response

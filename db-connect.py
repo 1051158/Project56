@@ -1,24 +1,18 @@
-import pymongo
+from pymongo.mongo_client import MongoClient
+import certifi
 
 
-def connect_to_database():
-    # Connection URL
-    url = "mongodb://localhost:27017/"
+def connect_to_mongodb(uri):
+    # Create a new client and connect to the server
+    client = MongoClient(uri, tlsCAFile=certifi.where())
 
-    # Create a MongoClient object
-    client = pymongo.MongoClient(url)
-
-    # Access a database
-    db = client["mydatabase"]
-
-    # Access a collection
-    collection = db["mycollection"]
-
-    # Perform database operations
-
-    # Close the connection
-    client.close()
+    # Send a ping to confirm a successful connection
+    try:
+        client.admin.command("ping")
+        print("Pinged your deployment. You successfully connected to MongoDB!")
+    except Exception as e:
+        print(e)
 
 
-# Usage in position.py
-connect_to_database()
+uri = "mongodb+srv://aleniriskic:0hZpyfFParfakoMe@aquabotcluster.lmorwiv.mongodb.net/?retryWrites=true&w=majority"
+connect_to_mongodb(uri)
