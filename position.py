@@ -17,6 +17,8 @@ WHITE = [255, 255, 255]
 uri = "mongodb+srv://aleniriskic:0hZpyfFParfakoMe@aquabotcluster.lmorwiv.mongodb.net/?retryWrites=true&w=majority"
 client = MongoClient(uri, tlsCAFile=certifi.where())
 db = client.RangeData
+
+# name the trip, change "trip1" to whatever you want
 collection = db.trip1
 
 
