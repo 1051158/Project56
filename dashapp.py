@@ -2,7 +2,9 @@ from dash import Dash, html, dcc, Input, Output
 import plotly.express as px
 import pandas as pd
 import plotly.graph_objects as go
-import random
+from pymongo import MongoClient
+import certifi
+
 
 anchor_coordinates = [
     {"xA0": 0, "yA0": 0},
@@ -41,8 +43,8 @@ fig.update_layout(
     xaxis=dict(constrain="domain", showticklabels=False, title=""),
     plot_bgcolor="rgba(0,0,0,0)",
 )
-test_x = [100]
-test_y = [300]
+test_x = [0]
+test_y = [0]
 
 fig.add_trace(
     go.Scatter(
@@ -67,10 +69,32 @@ app.layout = html.Div(
             },
         ),
         dcc.Interval(
-            id="interval-component", interval=1 * 1000, n_intervals=0  # in milliseconds
+            id="interval-component", interval=1 * 400, n_intervals=0  # in milliseconds
         ),
     ]
 )
+
+
+# Function to calculate the Aquabot's position using the three-point algorithm
+def calculate_aquabot_position(distance_from_A0, distance_from_A1, distance_from_A2):
+    # Coordinates of the anchor points
+    xA0, yA0 = anchor_df.iloc[0]
+    xA1, yA1 = anchor_df.iloc[1]
+    xA2, yA2 = anchor_df.iloc[2]
+
+    # Calculate the Aquabot's position
+    x = (distance_from_A0**2 - distance_from_A1**2 + xA1**2) / (2 * xA1)
+    y = (
+        distance_from_A0**2
+        - distance_from_A2**2
+        + xA2**2
+        + yA2**2
+        - 2
+        * yA2
+        * ((distance_from_A0**2 - distance_from_A1**2 + xA1**2) / (2 * xA1))
+    ) / (2 * yA2)
+
+    return x, y
 
 
 # Callback to update the Aquabot's position
@@ -78,18 +102,37 @@ app.layout = html.Div(
     Output("aquabot-graph", "figure"), [Input("interval-component", "n_intervals")]
 )
 def update_aquabot_position(n):
-    # Distances from each anchor
-    distances = [77, 229, 356, 303]
+    distance_from_anchors = get_coordinates_from_db()
 
-    # Calculate the x and y coordinates
-    x = (distances[1] ** 2 - distances[0] ** 2 + max_x**2) / (2 * max_x)
-    y = (distances[3] ** 2 - distances[2] ** 2 + max_y**2) / (2 * max_y)
+    # Distances from each anchor
+    distance_from_A0 = int(distance_from_anchors[0][0])
+    distance_from_A1 = int(distance_from_anchors[0][1])
+    distance_from_A2 = int(distance_from_anchors[0][2])
+
+    # Calculate the Aquabot's position
+    x, y = calculate_aquabot_position(
+        distance_from_A0, distance_from_A1, distance_from_A2
+    )
 
     # Update the figure
     fig.data[-1].x = [x]
     fig.data[-1].y = [y]
 
     return fig
+
+
+def get_coordinates_from_db():
+    uri = "mongodb+srv://aleniriskic:0hZpyfFParfakoMe@aquabotcluster.lmorwiv.mongodb.net/?retryWrites=true&w=majority"
+    client = MongoClient(uri, tlsCAFile=certifi.where())
+    db = client.RangeData
+
+    collection = db["trip1"]
+    entries = collection.find()
+
+    # Assuming you want the last three ranges
+    ranges = [entry["range"] for entry in entries][-1:]
+
+    return ranges
 
 
 if __name__ == "__main__":
