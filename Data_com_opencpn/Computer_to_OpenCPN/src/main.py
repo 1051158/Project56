@@ -14,7 +14,7 @@ serial_port = 'COM1'
 # [LINUX] Replace '/dev/ttyUSBX' with the appropriate serial port on your system
 # serial_port = '/dev/ttyUSB0'
 
-#lat and long in degree minutes format(DM) Between uk and ireland
+#lat and long in degree minutes format(DM) Between uk and ireland {Test}
 latitude = 53.679746945954754
 longitude = -5.167506462247125
 
@@ -27,6 +27,8 @@ except serial.SerialException as e:
     exit()
 
 while True:
+    # Use any sentences here and send them to OpenCPN with serial.write((sentence + '\r\n').encode())
+
     # Create a minimal GGA sentence with only latitude and longitude
     # gga = GEN.gga(time_data = None, 
     #                             lat = latitude, 
@@ -42,11 +44,12 @@ while True:
     #                             correction_station_id = "0000")
 
     gga = TEST.test_gga(latitude = latitude, longitude = longitude, print_sentence = True)
-
-    latitude += -0.001
-    longitude += -0.009
     # Send the NMEA sentence to the serial port
     ser.write((gga + '\r\n').encode())  # Ensure to add line ending (\r\n) for NMEA sentences
+
+    # Increment the latitude and longitude for the next update
+    latitude += -0.001
+    longitude += -0.009
     
     # Wait for a few seconds before sending the next update
     time.sleep(0.5)
