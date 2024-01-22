@@ -1,127 +1,62 @@
-from dash import Dash, html, dcc, Output, Input
-import plotly.graph_objects as go
-from pymongo import MongoClient
-import ast
+from dash import Dash, html, dcc
+import plotly.express as px
+import pandas as pd
 
-uri = "mongodb+srv://aleniriskic:0hZpyfFParfakoMe@aquabotcluster.lmorwiv.mongodb.net/?retryWrites=true&w=majority"
-client = MongoClient(uri)
-db = client.RangeData
-
-collection = db["trip1"]
-entries = collection.find()
-
-# Extracting the 'range' field from each entry and converting it to a string
-ranges = [str(entry["range"]) for entry in entries]
-
-distance_from_a0 = []
-distance_from_a1 = []
-distance_from_a2 = []
-distance_from_a3 = []
-
-for range_str in ranges:
-    range_list = ast.literal_eval(range_str)
-    if range_list:
-        distance_from_a0.append(range_list[0])
-        distance_from_a1.append(range_list[1])
-        distance_from_a2.append(range_list[2])
-        distance_from_a3.append(range_list[3])
-
-# Joining the ranges with line breaks
-ranges_html = " ".join(ranges)
-
+# Your anchor_coordinates
 anchor_coordinates = [
     {"xA0": 0, "yA0": 0},
-    {"xA1": 1000, "yA1": 0},
-    {"xA2": 1000, "yA2": 1000},
-    {"xA3": 0, "yA3": 1000},
+    {"xA1": 500, "yA1": 0},
+    {"xA2": 500, "yA2": 500},
+    {"xA3": 1000, "yA3": 500},
+    {"xA4": 1000, "yA4": 1000},
+    {"xA5": 0, "yA5": 1000},
 ]
 
+# Extracting maximum x and y values
+max_x = max(coord[f"xA{i}"] for i, coord in enumerate(anchor_coordinates))
+max_y = max(coord[f"yA{i}"] for i, coord in enumerate(anchor_coordinates))
+
+# Convert anchor_coordinates to a DataFrame
+anchor_df = pd.DataFrame(
+    [(coord[f"xA{i}"], coord[f"yA{i}"]) for i, coord in enumerate(anchor_coordinates)],
+    columns=["x", "y"],
+)
+
+# Add the first point to the end to close the loop
+anchor_df = anchor_df.append(anchor_df.iloc[0], ignore_index=True)
+
+# Create labels for each anchor point and repeat the first label at the end
+labels = [f"A{i}" for i in range(len(anchor_coordinates))] + ["A0"]
+
+# Create a Plotly Express line figure with text labels
+fig = px.line(anchor_df, x="x", y="y", text=labels, markers=True)
+
+# Customize the figure
+fig.update_traces(marker=dict(size=10, color="red"), line=dict(color="blue"))
+fig.update_traces(textposition="top left")
+fig.update_layout(
+    title="Aquabot Positioning",
+    xaxis_range=[0 - 100, max_x + 100],
+    yaxis_range=[0 - 100, max_y + 100],
+    yaxis=dict(scaleanchor="x", scaleratio=1, showticklabels=False, title=""),
+    xaxis=dict(constrain="domain", showticklabels=False, title=""),
+    plot_bgcolor="rgba(0,0,0,0)",
+)
+
+# Start the Dash app
 app = Dash(__name__)
 
 app.layout = html.Div(
     [
         dcc.Graph(
-            id="graph-content",
+            id="example-graph",
+            figure=fig,
             style={
                 "height": "750px",
             },
-        ),
+        )
     ]
 )
-
-
-@app.callback(Output("graph-content", "figure"), Input("graph-content", "id"))
-def update_graph(id):
-    anchor = {
-        "xA0": anchor_coordinates[0]["xA0"],
-        "yA0": anchor_coordinates[0]["yA0"],
-        "xA1": anchor_coordinates[1]["xA1"],
-        "yA1": anchor_coordinates[1]["yA1"],
-        "xA2": anchor_coordinates[2]["xA2"],
-        "yA2": anchor_coordinates[2]["yA2"],
-        "xA3": anchor_coordinates[3]["xA3"],
-        "yA3": anchor_coordinates[3]["yA3"],
-    }
-
-    max_x = max([anchor.get(f"xA{i}", 0) for i in range(4)])
-    max_y = max([anchor.get(f"yA{i}", 0) for i in range(4)])
-
-    anchor_points_x = [anchor[f"xA{i}"] for i in range(4)]
-    anchor_points_y = [anchor[f"yA{i}"] for i in range(4)]
-    anchor_labels = [f"A{i}" for i in range(4)]
-
-    fig = go.Figure()
-
-    # Plotting the bounding box
-    fig.add_trace(
-        go.Scatter(
-            x=[0, max_x, max_x, 0, 0],
-            y=[0, 0, max_y, max_y, 0],
-            mode="lines",
-            name="Border",
-        )
-    )
-
-    # Adding anchor points
-    fig.add_trace(
-        go.Scatter(
-            x=anchor_points_x,
-            y=anchor_points_y,
-            mode="markers",
-            name="Anchor Points",
-            marker=dict(size=10, color="red"),
-        )
-    )
-
-    # Manually setting the position of the labels outside the bounding box
-    text_offset = 50  # Adjust this value to move the labels further from the box
-    label_positions_x = [
-        x - text_offset if x == 0 else x + text_offset for x in anchor_points_x
-    ]
-    label_positions_y = [
-        y - text_offset if y == 0 else y + text_offset for y in anchor_points_y
-    ]
-
-    # Adding labels as separate traces
-    for label, x, y in zip(anchor_labels, label_positions_x, label_positions_y):
-        fig.add_trace(
-            go.Scatter(
-                x=[x],
-                y=[y],
-                text=[label],
-                mode="text",
-                showlegend=False,
-            )
-        )
-
-    fig.update_layout(
-        title="Aquabot Positioning",
-        plot_bgcolor="rgba(0,0,0,0)",
-        yaxis=dict(scaleanchor="x", scaleratio=1, showticklabels=False),
-        xaxis=dict(constrain="domain", showticklabels=False),
-    )
-    return fig
-
 
 if __name__ == "__main__":
     app.run_server(debug=True)
