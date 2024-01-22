@@ -1,15 +1,14 @@
-from dash import Dash, html, dcc
+from dash import Dash, html, dcc, Input, Output
 import plotly.express as px
 import pandas as pd
+import plotly.graph_objects as go
+import random
 
-# Your anchor_coordinates
 anchor_coordinates = [
     {"xA0": 0, "yA0": 0},
-    {"xA1": 500, "yA1": 0},
-    {"xA2": 500, "yA2": 500},
-    {"xA3": 1000, "yA3": 500},
-    {"xA4": 1000, "yA4": 1000},
-    {"xA5": 0, "yA5": 1000},
+    {"xA1": 400, "yA1": 0},
+    {"xA2": 400, "yA2": 400},
+    {"xA3": 0, "yA3": 400},
 ]
 
 # Extracting maximum x and y values
@@ -42,6 +41,18 @@ fig.update_layout(
     xaxis=dict(constrain="domain", showticklabels=False, title=""),
     plot_bgcolor="rgba(0,0,0,0)",
 )
+test_x = [100]
+test_y = [300]
+
+fig.add_trace(
+    go.Scatter(
+        x=test_x,
+        y=test_y,
+        mode="markers",
+        marker=dict(size=20, color="green"),
+        name="Aquabot",
+    )
+)
 
 # Start the Dash app
 app = Dash(__name__)
@@ -49,14 +60,37 @@ app = Dash(__name__)
 app.layout = html.Div(
     [
         dcc.Graph(
-            id="example-graph",
+            id="aquabot-graph",
             figure=fig,
             style={
                 "height": "750px",
             },
-        )
+        ),
+        dcc.Interval(
+            id="interval-component", interval=1 * 1000, n_intervals=0  # in milliseconds
+        ),
     ]
 )
+
+
+# Callback to update the Aquabot's position
+@app.callback(
+    Output("aquabot-graph", "figure"), [Input("interval-component", "n_intervals")]
+)
+def update_aquabot_position(n):
+    # Distances from each anchor
+    distances = [77, 229, 356, 303]
+
+    # Calculate the x and y coordinates
+    x = (distances[1] ** 2 - distances[0] ** 2 + max_x**2) / (2 * max_x)
+    y = (distances[3] ** 2 - distances[2] ** 2 + max_y**2) / (2 * max_y)
+
+    # Update the figure
+    fig.data[-1].x = [x]
+    fig.data[-1].y = [y]
+
+    return fig
+
 
 if __name__ == "__main__":
     app.run_server(debug=True)

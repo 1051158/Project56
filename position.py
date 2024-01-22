@@ -238,9 +238,9 @@ tag_count = 8
 
 # Define the anchor coordinates
 A0X, A0Y = 0, 0
-A1X, A1Y = 1000, 0
-A2X, A2Y = 1000, 1000
-A3X, A3Y = 0, 1000
+A1X, A1Y = 400, 0
+A2X, A2Y = 400, 400
+A3X, A3Y = 0, 400
 
 # Calculate the center coordinates and maximum range
 CENTER_X = int((A0X + A1X + A2X) / 3)
