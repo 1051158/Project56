@@ -25,11 +25,15 @@ anchor_df = pd.DataFrame(
 # Add the first point to the end to close the loop
 anchor_df = anchor_df.append(anchor_df.iloc[0], ignore_index=True)
 
-# Create a Plotly Express line figure
-fig = px.line(anchor_df, x="x", y="y", markers=True)
+# Create labels for each anchor point and repeat the first label at the end
+labels = [f"A{i}" for i in range(len(anchor_coordinates))] + ["A0"]
+
+# Create a Plotly Express line figure with text labels
+fig = px.line(anchor_df, x="x", y="y", text=labels, markers=True)
 
 # Customize the figure
 fig.update_traces(marker=dict(size=10, color="red"), line=dict(color="blue"))
+fig.update_traces(textposition="top left")
 fig.update_layout(
     title="Aquabot Positioning",
     xaxis_range=[0 - 100, max_x + 100],
