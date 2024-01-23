@@ -10,7 +10,7 @@ udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 # Example GGA data
 gga_data = "$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47"
-
+print("Sending GGA data to OpenCPN..., press Ctrl+C to stop")
 while True:
     # Send GGA data to OpenCPN
     udp_socket.sendto(gga_data.encode(), (opencpn_address, opencpn_port))
