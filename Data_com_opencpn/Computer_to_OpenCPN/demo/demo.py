@@ -30,11 +30,13 @@ def serialConnection(port: str):
 
     while True:
         # Use any sentences here and send them to OpenCPN with serial.write((sentence + '\r\n').encode())
+        latitudeLocal = latitude
+        longitudeLocal = longitude
 
         # Create a minimal GGA sentence with only latitude and longitude
         gga = GEN.gga(
-                                    lat = latitude,
-                                    long = longitude,
+                                    lat = latitudeLocal,
+                                    long = longitudeLocal,
                                     fix_quality = 1,
                                     satellites = 10,
                                     horizontal_dilution_of_precision = 0.1,
@@ -52,19 +54,19 @@ def serialConnection(port: str):
         )  # Ensure to add line ending (\r\n) for NMEA sentences
 
         # Increment the latitude and longitude for the next update
-        latitude += -0.001
-        longitude += -0.009
+        latitudeLocal += -0.001
+        longitudeLocal += -0.009
 
         # Wait for a few seconds before sending the next update
         time.sleep(0.5)
 
-def socketConnection(hostip:str, portOpen:int):
+def socketConnection_udp(hostip:str, portOpen:int):
     host = hostip  # OpenCPN's IP address
     port = portOpen  # OpenCPN's default port for NMEA data
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     while True:
-    # Create a minimal GGA sentence with only latitude and longitude
+        # Create a minimal GGA sentence with only latitude and longitude
         gga = GEN.gga(  lat = latitude,
                         long = longitude,
                         fix_quality = 1,
@@ -78,10 +80,11 @@ def socketConnection(hostip:str, portOpen:int):
                         correction_station_id = "0000") + "\r\n" # Ensure to add line ending (\r\n) for NMEA sentences
         udp_socket.sendto(gga.encode(), (host, port))
 
+        
         # gga = TEST.test_gga(latitude=latitude, longitude=longitude, print_sentence=True)
         # Send the NMEA sentence to the serial port
         
 
 
-socketConnection("127.0.0.1", 10110)
-# serialConnection("COM1")
+# socketConnection("127.0.0.1", 10110)
+socketConnection_udp("COM1")
