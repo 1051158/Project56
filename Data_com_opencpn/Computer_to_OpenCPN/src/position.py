@@ -60,14 +60,15 @@ def read_data():
     """
     Reads the data from the serial port, updates the UWB objects, and uploads the data to MongoDB.
     """
-    line = ser.readline().decode("UTF-8").replace("\n", "")
-
+    line = ser2.readline().decode("UTF-8").replace("\n", "")
+    print(ser2)
     try:
         data = json.loads(line)
         print(data)
         print(data["id"])
 
-        tag[data["id"]].list = data["range"]
+        # tag[data["id"]].list = data["range"]
+        tag = data["range"]
         tag[data["id"]].cal()
 
         # Add anchor coordinates to data
@@ -87,30 +88,32 @@ def read_data():
 
 # Set up the serial port
 ser = serial.Serial(get_com_port(), 4800)
+ser2 = serial.Serial(get_com_port(), 115200)
 
 # Initialize the anchor and tag UWB objects
 anc = []
+# placebo = []
 tag = []
 anc_count = 4
 tag_count = 1
 
 # Define the anchor coordinates
 A0X, A0Y = 0, 0
-A1X, A1Y = 400, 0
-A2X, A2Y = 400, 400
-A3X, A3Y = 0, 400
+A1X, A1Y = 1000, 0
+A2X, A2Y = 1000, 1340
+A3X, A3Y = 0, 1340
 
 # Start the data reading loop
-ser.write("begin".encode("UTF-8"))
-ser.reset_input_buffer()
+ser2.write("begin".encode("UTF-8"))
+ser2.reset_input_buffer()
 
 while True:
-    print("A")
+    # print("A")
     distance_from_anchors = get_coordinates_from_db()
 
     # Distances from each anchor
     distance_from_A0 = int(distance_from_anchors[0][0])
-    print (distance_from_A0)
+    # print (distance_from_A0)
     distance_from_A1 = int(distance_from_anchors[0][1])
     distance_from_A2 = int(distance_from_anchors[0][2])
 
@@ -118,7 +121,7 @@ while True:
     x, y = calculate_aquabot_position(
         distance_from_A0, distance_from_A1, distance_from_A2
     )
-    print(x, y)
+    # print(x, y)
     # Use any sentences here and send them to OpenCPN with serial.write((sentence + '\r\n').encode())
 
     # Create a minimal GGA sentence with only latitude and longitude
@@ -144,3 +147,4 @@ while True:
         (gga + "\r\n").encode()
     )  # Ensure to add line ending (\r\n) for NMEA sentences
     # read_data()
+    read_data()

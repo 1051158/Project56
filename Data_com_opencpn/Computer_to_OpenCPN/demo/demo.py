@@ -15,11 +15,9 @@ from ..custom_project_lib.nmea0183_sentences_test import NMEA0183_GEN_TEST as TE
 # [LINUX] Replace '/dev/ttyUSBX' with the appropriate serial port on your system
 # serial_port = '/dev/ttyUSB0'
 
-# Open the serial port
-
-# lat and long in degree minutes format(DM) Between uk and ireland {Test}
-latitude = 53.679746945954754
-longitude = -5.167506462247125
+# lat and long in degree minutes format(DM) at RDM Rotterdam, AquaLabs{Test}
+latitude = 51.89832516307501
+longitude = 4.418785646063367
 
 def serialConnection(port: str):
     serial_port = port
@@ -63,14 +61,10 @@ def serialConnection(port: str):
 def socketConnection(hostip:str, portOpen:int):
     host = hostip  # OpenCPN's IP address
     port = portOpen  # OpenCPN's default port for NMEA data
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        try:
-            s.connect((host, port))
-            print("Connection successful")
-        except Exception as e:
-            print(f"Connection failed: {e}")
-        s.connect((host, port))
-        # Create a minimal GGA sentence with only latitude and longitude
+    udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    while True:
+    # Create a minimal GGA sentence with only latitude and longitude
         gga = GEN.gga(  lat = latitude,
                         long = longitude,
                         fix_quality = 1,
@@ -81,12 +75,13 @@ def socketConnection(hostip:str, portOpen:int):
                         geoid = -32.00,
                         geoid_unit = "M",
                         age_of_correction_data_seconds = "01",
-                        correction_station_id = "0000")
+                        correction_station_id = "0000") + "\r\n" # Ensure to add line ending (\r\n) for NMEA sentences
+        udp_socket.sendto(gga.encode(), (host, port))
 
         # gga = TEST.test_gga(latitude=latitude, longitude=longitude, print_sentence=True)
         # Send the NMEA sentence to the serial port
-        s.sendall((gga + "\r\n").encode())  # Ensure to add line ending (\r\n) for NMEA sentences
+        
 
 
-socketConnection("ip", 10110)
+socketConnection("127.0.0.1", 10110)
 # serialConnection("COM1")
