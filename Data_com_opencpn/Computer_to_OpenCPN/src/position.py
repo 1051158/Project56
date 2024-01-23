@@ -118,7 +118,6 @@ while True:
 
     # Create a minimal GGA sentence with only latitude and longitude
     gga = GEN.gga(
-        time_data=None,
         lat=latitude + y,
         long=longitude + x,
         fix_quality=1,
