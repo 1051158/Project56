@@ -88,5 +88,5 @@ def socketConnection(hostip:str, portOpen:int):
         s.sendall((gga + "\r\n").encode())  # Ensure to add line ending (\r\n) for NMEA sentences
 
 
-socketConnection("127.0.0.1", 8090)
+socketConnection("ip", 10110)
 # serialConnection("COM1")
