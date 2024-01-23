@@ -15,8 +15,10 @@ from ..custom_project_lib.nmea0183_sentences_test import (
 from .dashapp import calculate_aquabot_position, get_coordinates_from_db
 
 # lat and long in degree minutes format(DM) Between uk and ireland {Test}
-latitude = 53.679746945954754
-longitude = -5.167506462247125
+# latitude = 53.679746945954754
+# longitude = -5.167506462247125
+latitude = 51.89832516307501
+longitude = 4.418785646063367
 
 # Define color constants
 RED = [255, 0, 0]
@@ -84,7 +86,7 @@ def read_data():
 
 
 # Set up the serial port
-ser = serial.Serial(get_com_port(), 115200)
+ser = serial.Serial(get_com_port(), 4800)
 
 # Initialize the anchor and tag UWB objects
 anc = []
@@ -103,10 +105,12 @@ ser.write("begin".encode("UTF-8"))
 ser.reset_input_buffer()
 
 while True:
+    print("A")
     distance_from_anchors = get_coordinates_from_db()
 
     # Distances from each anchor
     distance_from_A0 = int(distance_from_anchors[0][0])
+    print (distance_from_A0)
     distance_from_A1 = int(distance_from_anchors[0][1])
     distance_from_A2 = int(distance_from_anchors[0][2])
 
@@ -114,12 +118,13 @@ while True:
     x, y = calculate_aquabot_position(
         distance_from_A0, distance_from_A1, distance_from_A2
     )
+    print(x, y)
     # Use any sentences here and send them to OpenCPN with serial.write((sentence + '\r\n').encode())
 
     # Create a minimal GGA sentence with only latitude and longitude
     gga = GEN.gga(
-        lat=latitude + y,
-        long=longitude + x,
+        lat=latitude + (y / 1000000),
+        long=longitude + (x / 1000000),
         fix_quality=1,
         satellites=10,
         horizontal_dilution_of_precision=0.1,
@@ -138,4 +143,4 @@ while True:
     ser.write(
         (gga + "\r\n").encode()
     )  # Ensure to add line ending (\r\n) for NMEA sentences
-    read_data()
+    # read_data()
