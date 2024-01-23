@@ -30,7 +30,7 @@ while True:
     # Use any sentences here and send them to OpenCPN with serial.write((sentence + '\r\n').encode())
 
     # Create a minimal GGA sentence with only latitude and longitude
-    gga = GEN.gga(time_data = None,
+    gga = GEN.gga(
                                 lat = latitude,
                                 long = longitude,
                                 fix_quality = 1,

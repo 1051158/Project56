@@ -6,13 +6,13 @@ import json
 import time
 from pymongo import MongoClient
 import certifi
-from ..Project56.Data_com_opencpn.Computer_to_OpenCPN.custom_project_lib.nmea0183_sentences import (
+from ..custom_project_lib.nmea0183_sentences import (
     NMEA0183_GEN as GEN,
 )
-from ..Project56.Data_com_opencpn.Computer_to_OpenCPN.custom_project_lib.nmea0183_sentences_test import (
+from ..custom_project_lib.nmea0183_sentences_test import (
     NMEA0183_GEN_TEST as TEST,
 )
-from dashapp import calculate_aquabot_position
+from .dashapp import calculate_aquabot_position
 
 # lat and long in degree minutes format(DM) Between uk and ireland {Test}
 latitude = 53.679746945954754
@@ -107,22 +107,22 @@ while True:
     # Use any sentences here and send them to OpenCPN with serial.write((sentence + '\r\n').encode())
 
     # Create a minimal GGA sentence with only latitude and longitude
-    # gga = GEN.gga(time_data = None,
-    #                             lat = latitude,
-    #                             long = longitude,
-    #                             fix_quality = 1,
-    #                             satellites = 10,
-    #                             horizontal_dilution_of_precision = 0.1,
-    #                             elevation_above_sea_level = 255.747,
-    #                             elevation_unit = "M",
-    #                             geoid = -32.00,
-    #                             geoid_unit = "M",
-    #                             age_of_correction_data_seconds = "01",
-    #                             correction_station_id = "0000")
+    gga = GEN.gga(time_data = None,
+                    lat = latitude,
+                    long = longitude,
+                    fix_quality = 1,
+                    satellites = 10,
+                    horizontal_dilution_of_precision = 0.1,
+                    elevation_above_sea_level = 255.747,
+                    elevation_unit = "M",
+                    geoid = -32.00,
+                    geoid_unit = "M",
+                    age_of_correction_data_seconds = "01",
+                    correction_station_id = "0000")
 
-    gga = TEST.test_gga(
-        latitude=latitude + y, longitude=longitude + x, print_sentence=True
-    )
+    # gga = TEST.test_gga(
+    #     latitude=latitude + y, longitude=longitude + x, print_sentence=True
+    # )
     # Send the NMEA sentence to the serial port
     ser.write(
         (gga + "\r\n").encode()

@@ -24,7 +24,8 @@ anchor_df = pd.DataFrame(
 )
 
 # Add the first point to the end to close the loop
-anchor_df = anchor_df.append(anchor_df.iloc[0], ignore_index=True)
+anchor_df = anchor_df._append(anchor_df.iloc[0], ignore_index=True)
+# anchor_df = anchor_df.append(anchor_df.iloc[0], ignore_index=True)
 
 # Create labels for each anchor point and repeat the first label at the end
 labels = [f"A{i}" for i in range(len(anchor_coordinates))] + ["A0"]
@@ -43,8 +44,8 @@ fig.update_layout(
     xaxis=dict(constrain="domain", showticklabels=False, title=""),
     plot_bgcolor="rgba(0,0,0,0)",
 )
-test_x = [0]
-test_y = [0]
+test_x = [150]
+test_y = [200]
 
 fig.add_trace(
     go.Scatter(
