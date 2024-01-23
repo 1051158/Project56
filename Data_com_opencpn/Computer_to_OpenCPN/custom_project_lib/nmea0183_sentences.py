@@ -54,7 +54,7 @@ class NMEA0183_GEN:
             str(bearing_to_destination_true) or '',
             str(destination_closing_velocity_knots) or '',
             str(arrival_status)
-        )).render()
+        )).render() + '\r\n'
 
     # RMC SENTENCE >>> $GPRMC,hhmmss.ss,A,llll.ll,a,yyyyy.yy,a,x.x,x.x,ddmmyy,x.x,a
     # Recommended Minimum Navigation Information C
@@ -84,7 +84,7 @@ class NMEA0183_GEN:
             str(magnetic_variation_degrees) or '',
             str(magnetic_direction),
             str(navigation_status)
-        )).render()
+        )).render() + '\r\n'
         
     # GGA SENTENCE >>> $GPGGA,hhmmss.ss,llll.ll,a,yyyyy.yy,a,x,xx,x.x,x.x,M,x.x,M,x.x,xxxx
     # Global Positioning System Fix Data
@@ -119,7 +119,7 @@ class NMEA0183_GEN:
             str(geoid_unit),
             str(age_of_correction_data_seconds),
             str(correction_station_id)
-        )).render()
+        )).render() + '\r\n'
 
     # GSV SENTENCE >>> $GPGSV
     # GPS Satellites in view
@@ -165,7 +165,7 @@ class NMEA0183_GEN:
             str(elevation_degrees_4) or '',
             str(azimuth_degrees_4) or '',
             str(snr_4) or ''
-        )).render()
+        )).render() + '\r\n'
     
     # GGL SENTENCE >>> $GPGLL,llll.ll,a,yyyyy.yy,a,hhmmss.ss,A
     # Geographic Position - Latitude/Longitude
@@ -183,7 +183,7 @@ class NMEA0183_GEN:
             NMEA0183_GEN.__getDirection("longitude", long) if long is not None else '',
             time_data,
             str(status)
-        )).render()
+        )).render() + '\r\n'
     
     # VTG SENTENCE >>> $GPVTG,x.x,T,x.x,M,x.x,N,x.x,K
     # Course Over Ground and Ground Speed
@@ -207,7 +207,7 @@ class NMEA0183_GEN:
             str(knots),
             str(speed_kph) or '',
             str(kmh)
-        )).render()
+        )).render() + '\r\n'
     
     # ZDA SENTENCE >>> $GPZDA,hhmmss.ss,dd,mm,yyyy,xx,yy
     # Time & Date - UTC, day, month, year and local time zone
@@ -227,5 +227,5 @@ class NMEA0183_GEN:
             year,
             local_zone_hours,
             local_zone_minutes
-        )).render()
+        )).render() + '\r\n'
      
