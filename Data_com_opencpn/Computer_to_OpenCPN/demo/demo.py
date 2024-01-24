@@ -7,8 +7,8 @@
 import serial
 import socket
 import time
-import paho.mqtt.publish as publish
-import paho.mqtt.client as mqttClient
+# import paho.mqtt.publish as publish
+# import paho.mqtt.client as mqttClient
 from ..custom_project_lib.nmea0183_sentences import NMEA0183_GEN as GEN
 from ..custom_project_lib.nmea0183_sentences_test import NMEA0183_GEN_TEST as TEST
 
@@ -122,15 +122,15 @@ def socketConnection_udp(*, delay: float): #hostip:str, portOpen:int
 
     
 
-def socketConnection_tcp(*, delay: float, sentence: str = None, host: str = None, port: int = None, increment: str = None):
+def socketConnection_tcp(*, delay: float):
     print("--------------------------------------------------------------------------------")
     print("| TCP Socket Connection to OpenCPN")
     print("| When using on Local machine, use either localhost or 127.0.0.1 as host")
     print("| When using on Remote machine, use the IP address of the machine running OpenCPN")
     print("| Please use the same port as the one set in OpenCPN, or use the default port 10110")
-    host = host or input("| > OpenCPN/Host's IP-address: ")  # OpenCPN's IP address/HOST computer's ip address
-    port = port or int(input("| > Listening port: "))  # OpenCPN's default port for NMEA data
-    increment = increment or input("| > Increment latitude and longitude? (y/n): ") == "n"
+    host = input("| > OpenCPN/Host's IP-address: ")  # OpenCPN's IP address/HOST computer's ip address
+    port = int(input("| > Listening port: "))  # OpenCPN's default port for NMEA data
+    increment = input("| > Increment latitude and longitude? (y/n): ") == "n"
 
     tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
@@ -154,7 +154,7 @@ def socketConnection_tcp(*, delay: float, sentence: str = None, host: str = None
             # Create a minimal GGA sentence with only latitude and longitude
             global latitude
             global longitude
-            gga = (str(sentence) + "\n\r" if sentence is not None else None) or GEN.gga(  lat = latitude[0],
+            gga = GEN.gga(  lat = latitude[0],
                             long = longitude[0],
                             fix_quality = 1,
                             satellites = 10,
