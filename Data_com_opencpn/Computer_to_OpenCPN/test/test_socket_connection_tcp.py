@@ -2,8 +2,10 @@ import socket
 import time
 
 # Define OpenCPN address and port
-opencpn_address = '127.0.0.1'  # Use the IP address of the laptop running OpenCPN
-opencpn_port = 10110
+print("--------------------------------------------------------------------------------")
+print("| TCP socket connection") 
+opencpn_address = input("| > OpenCPN's IP address: ")  # Use the IP address of the laptop running OpenCPN
+opencpn_port = int(input("| > OpenCPN's port: "))  # Use the port set in OpenCPN
 
 # Open a TCP socket
 tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -12,8 +14,8 @@ tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 tcp_socket.connect((opencpn_address, opencpn_port))
 
 # Example GGA data
-gga_data = "$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47"
-
+gga_data = "$GPGGA,224456.000,5153.89950978450045,N,000425.12713876380202,E,1,10,0.1,255.747,M,-32.0,M,01,0000"
+print("| [200] Sending GGA data to OpenCPN with TCP..., press Ctrl+C to stop")
 while True:
     # Send GGA data to OpenCPN
     tcp_socket.sendall(gga_data.encode())
