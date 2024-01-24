@@ -1,88 +1,116 @@
 import socket
 import time
-
+'''
+Hello, this is a socket connection class for OpenCPN.
+'''
 class SOCKET_CONNECTION:
-    data = ""
+    __data = None
+    __socket = None
+    __socket_type = None
+    __openCPN_host = None
+    __openCPN_port = None
 
     def __init__(self) -> None:
-        pass
+        self.__data = ""
+        self.__socket = None
+        self.__socket_type = ""
+        self.__openCPN_host = ""
+        self.__openCPN_port = 0
     
     def change_data(self, data: str) -> None:
-        self.data = data
+        self.__data = data
 
-    def tcp(self, *, delay: float):
+    '''
+    TCP Socket Connection to OpenCPN
+    '''
+    def tcp(self) -> None: 
         print("--------------------------------------------------------------------------------")
         print("| TCP Socket Connection to OpenCPN")
         print("| When using on Local machine, use either localhost or 127.0.0.1 as host")
         print("| When using on Remote machine, use the IP address of the machine running OpenCPN")
         print("| Please use the same port as the one set in OpenCPN, or use the default port 10110")
-        host = input("| > OpenCPN/Host's IP-address: ")  # OpenCPN's IP address/HOST computer's ip address
-        port = int(input("| > Listening port: "))  # OpenCPN's default port for NMEA data
+        self.__openCPN_host = input("| > OpenCPN/Host's IP-address: ")  # OpenCPN's IP address/HOST computer's ip address
+        self.__openCPN_port = int(input("| > Listening port: "))  # OpenCPN's default port for NMEA data
+        print("--------------------------------------------------------------------------------")
 
-        tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__socket_type = "TCP"
 
         try:
             # Connect to OpenCPN
-            tcp_socket.connect((host, port))
+            self.__socket.connect((self.__openCPN_host, self.__openCPN_port))
             print("| [200] TCP Socket connection is established!")
+            print("--------------------------------------------------------------------------------")
         except ConnectionRefusedError as cre:
-            print(f"| [X] Connection to OpenCPN at {host}:{port} was refused.")
+            print(f"| [X] Connection to OpenCPN at {self.__openCPN_host}:{self.__openCPN_port} was refused.")
             print(f"| [X] Error: {cre}")
             print("--------------------------------------------------------------------------------")
-            tcp_socket.close()
+            self.__socket.close()
             exit()
         except Exception as e:
             print(f"| [X] An error occurred: {e}")
             print("--------------------------------------------------------------------------------")
-            tcp_socket.close()
+            self.__socket.close()
             exit()
 
-        try: 
-            while True:
-                gga = self.data
-                # Send GGA data to OpenCPN
-                tcp_socket.sendall(gga.encode())
-
-                # Adjust the frequency of sending data according to your needs
-                time.sleep(delay)
-
-        except Exception as e:
-            print(f"| [X] Error: {e}")
-            print(f"| Host: {host}, Port: {port}")
-            print("--------------------------------------------------------------------------------")
-            exit()
-        finally:
-            tcp_socket.close()
-            ("[_] Socket closed.")
-
-    def udp(self, *, delay: float): #hostip:str, portOpen:int
+    '''
+    UDP Socket Connection to OpenCPN
+    '''
+    def udp(self) -> None:
         print("--------------------------------------------------------------------------------")
         print("| UDP Socket Connection to OpenCPN")
         print("| When using on Local machine, use either localhost or 127.0.0.1 as host")
         print("| When using on Remote machine, use the IP address of the machine running OpenCPN")
         print("| Please use the same port as the one set in OpenCPN, or use the default port 10110")
-        host = input("| > OpenCPN/Host's IP-address: ")  # OpenCPN's IP address/HOST computer's ip address
-        port = int(input("| > Listening port: "))  # OpenCPN's default port for NMEA data
+        self.__openCPN_host = input("| > OpenCPN/Host's IP-address: ")  # OpenCPN's IP address/HOST computer's ip address
+        self.__openCPN_port = int(input("| > Listening port: "))  # OpenCPN's default port for NMEA data
+        print("--------------------------------------------------------------------------------")
 
-        udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.__socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.__socket_type = "UDP"
 
         print("| [200] UDP Socket connection is established!")
+        print("--------------------------------------------------------------------------------")
 
+    '''
+    Close the socket connection
+    '''
+    def close(self) -> None:
+        print("| [~~~----] Closing Socket Connection")
+        print("--------------------------------------------------------------------------------")
+        try:
+            self.__socket.close()
+            print("| [-------] Socket connection is closed!")
+            print("--------------------------------------------------------------------------------")
+        except Exception as e:
+            print(f"| [X] Error: {e}")
+            print("--------------------------------------------------------------------------------")
+            exit()
+
+    '''
+    Send the data to OpenCPN
+    '''
+    def send_data(self) -> str:
         try: # Send the NMEA sentence to the serial port and catch any errors
-                    
-            while True:
-                gga = self.data
-            
-                # Send the NMEA sentence to OpenCPN via UDP
-                udp_socket.sendto(gga.encode(), (host, port))
+            sentence = self.__data
+            # sentence = self.data + "\r\n"
+        
+            # Send the NMEA sentence to OpenCPN via UDP
+            if self.__socket_type == "TCP":
+                self.__socket.sendall(sentence.encode())
+            elif self.__socket_type == "UDP":
+                self.__socket.sendto(sentence.encode(), (self.__openCPN_host, self.__openCPN_port))
 
-                time.sleep(delay)
+            return sentence.replace("\r\n", "")
 
         except Exception as e:
             print(f"| [X] Error: {e}")
-            print(f"| Host: {host}, Port: {port}")
-            exit()
-        finally:
-            udp_socket.close()
-            print("| [_] Socket closed.")
+            print(f"| Host: {self.__openCPN_host}, Port: {self.__openCPN_port}")
             print("--------------------------------------------------------------------------------")
+            exit()
+
+    '''
+    Close the socket connection when the object is deleted
+    '''
+    def __del__(self) -> None:
+        self.close()

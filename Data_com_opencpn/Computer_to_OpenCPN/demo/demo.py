@@ -30,10 +30,12 @@ def serialConnection(*, delay: float):
     serial_port = input("| > Serial Port: ")  # OpenCPN's default port for NMEA data
     baud_rate = int(input("| > Baud Rate: "))  # OpenCPN's default port for NMEA data
     increment = input("| > Increment latitude and longitude? (y/n): ")
+    print("--------------------------------------------------------------------------------")
 
     try:
         ser = serial.Serial(serial_port, baud_rate, timeout=1)
         print(f"| [200] Connected to {serial_port}")
+        print("--------------------------------------------------------------------------------")
     except serial.SerialException as e:
         print(f"| [X] Failed to connect to {serial_port}: {e}")
         print("--------------------------------------------------------------------------------")
