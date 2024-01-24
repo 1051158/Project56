@@ -148,3 +148,5 @@ except KeyboardInterrupt:
     print("| [!] Program is terminated by the user!")
     sc.close()
     exit()
+
+# Compile with: python3 -m Data_com_opencpn.Computer_to_OpenCPN.src.position
