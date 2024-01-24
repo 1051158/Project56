@@ -123,7 +123,7 @@ def update_aquabot_position(n):
 
 
 def get_coordinates_from_db():
-    uri = "mongodb+srv://aleniriskic:0hZpyfFParfakoMe@aquabotcluster.lmorwiv.mongodb.net/?retryWrites=true&w=majority"
+    uri = "mongodb+srv://aleniriskic:lr9iu3bI3WtRXLJa@aquabotcluster.lmorwiv.mongodb.net/?retryWrites=true&w=majority"
     client = MongoClient(uri, tlsCAFile=certifi.where())
     db = client.RangeData
 

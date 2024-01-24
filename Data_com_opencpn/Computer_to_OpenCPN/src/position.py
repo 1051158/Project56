@@ -25,7 +25,7 @@ RED = [255, 0, 0]
 BLACK = [0, 0, 0]
 WHITE = [255, 255, 255]
 
-uri = "mongodb+srv://aleniriskic:0hZpyfFParfakoMe@aquabotcluster.lmorwiv.mongodb.net/?retryWrites=true&w=majority"
+uri = "mongodb+srv://aleniriskic:lr9iu3bI3WtRXLJa@aquabotcluster.lmorwiv.mongodb.net/?retryWrites=true&w=majority"
 client = MongoClient(uri, tlsCAFile=certifi.where())
 db = client.RangeData
 
@@ -56,7 +56,7 @@ def get_com_port():
     return ports[port_index].device
 
 
-def read_data(): #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+def read_data():  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     """
     Reads the data from the serial port, updates the UWB objects, and uploads the data to MongoDB.
     """
@@ -67,9 +67,9 @@ def read_data(): #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         print(f"Data: {data}")
         print(f"Data identification: {data['id']}")
 
-        tag[data["id"]].list = data["range"]
+        # tag[data["id"]].list = data["range"]
         # tag = data["range"]
-        tag[data["id"]].cal()
+        # tag[data["id"]].cal()
 
         # Add anchor coordinates to data
         data["anchor_coordinates"] = [
@@ -105,9 +105,9 @@ A3X, A3Y = 0, 1340
 ser.write("begin".encode("UTF-8"))
 ser.reset_input_buffer()
 
-sc = SC() #socket_connection object
+sc = SC()  # socket_connection object
 sc.tcp()
-try: #Handle KeyboardInterrupt
+try:  # Handle KeyboardInterrupt
     while True:
         # print("A")
         distance_from_anchors = get_coordinates_from_db()
@@ -127,8 +127,8 @@ try: #Handle KeyboardInterrupt
 
         # Create a minimal GGA sentence with only latitude and longitude
         gga = GEN.gga(
-            lat=51.917391069025456,  #latitude + (y / 1000000),
-            long=4.483918576388719, #longitude + (x / 1000000),
+            lat=51.917391069025456,  # latitude + (y / 1000000),
+            long=4.483918576388719,  # longitude + (x / 1000000),
             fix_quality=1,
             satellites=10,
             horizontal_dilution_of_precision=0.1,
@@ -144,7 +144,9 @@ try: #Handle KeyboardInterrupt
         read_data()
 
 except KeyboardInterrupt:
-    print("--------------------------------------------------------------------------------")
+    print(
+        "--------------------------------------------------------------------------------"
+    )
     print("| [!] Program is terminated by the user!")
     sc.close()
     exit()
