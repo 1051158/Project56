@@ -14,5 +14,5 @@ def connect_to_mongodb(uri):
         print(e)
 
 
-uri = "mongodb+srv://aleniriskic:0hZpyfFParfakoMe@aquabotcluster.lmorwiv.mongodb.net/?retryWrites=true&w=majority"
+uri = "mongodb+srv://aleniriskic:lr9iu3bI3WtRXLJa@aquabotcluster.lmorwiv.mongodb.net/?retryWrites=true&w=majority"
 connect_to_mongodb(uri)

@@ -8,9 +8,9 @@ import certifi
 
 anchor_coordinates = [
     {"xA0": 0, "yA0": 0},
-    {"xA1": 1000, "yA1": 0},
-    {"xA2": 1000, "yA2": 1340},
-    {"xA3": 0, "yA3": 1340},
+    {"xA1": 580, "yA1": 0},
+    {"xA2": 580, "yA2": 550},
+    {"xA3": 0, "yA3": 550},
 ]
 
 # Extracting maximum x and y values
@@ -44,8 +44,8 @@ fig.update_layout(
     xaxis=dict(constrain="domain", showticklabels=False, title=""),
     plot_bgcolor="rgba(0,0,0,0)",
 )
-test_x = []
-test_y = []
+test_x = [120]
+test_y = [100]
 
 fig.add_trace(
     go.Scatter(
@@ -70,7 +70,7 @@ app.layout = html.Div(
             },
         ),
         dcc.Interval(
-            id="interval-component", interval=1 * 400, n_intervals=0  # in milliseconds
+            id="interval-component", interval=1 * 740, n_intervals=0  # in milliseconds
         ),
     ]
 )

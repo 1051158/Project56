@@ -12,13 +12,11 @@ from ..custom_project_lib.nmea0183_sentences import (
 from ..custom_project_lib.socket_connection import (
     SOCKET_CONNECTION as SC,
 )
-from .dashapp import calculate_aquabot_position, get_coordinates_from_db
 
 # lat and long in degree minutes format(DM) Between uk and ireland {Test}
 # latitude = 53.679746945954754
 # longitude = -5.167506462247125
-latitude = 51.89832516307501
-longitude = 4.418785646063367
+latitude, longitude = 51.91729442274804, 4.483863721865191
 
 # Define color constants
 RED = [255, 0, 0]
@@ -31,6 +29,33 @@ db = client.RangeData
 
 # name the trip, change "trip1" to whatever you want
 collection = db.trip1
+
+anchor_coordinates = [
+    {"xA0": 0, "yA0": 0},
+    {"xA1": 580, "yA1": 0},
+    {"xA2": 580, "yA2": 550},
+    {"xA3": 0, "yA3": 550},
+]
+
+
+# Function to calculate the Aquabot's position using the three-point algorithm
+def calculate_aquabot_position(distance_from_A0, distance_from_A1, distance_from_A2):
+    xA1 = anchor_coordinates[1]["xA1"]
+    xA2 = anchor_coordinates[2]["xA2"]
+    yA2 = anchor_coordinates[2]["yA2"]
+    # Calculate the Aquabot's position
+    x = (distance_from_A0**2 - distance_from_A1**2 + xA1**2) / (2 * xA1)
+    y = (
+        distance_from_A0**2
+        - distance_from_A2**2
+        + xA2**2
+        + yA2**2
+        - 2
+        * yA2
+        * ((distance_from_A0**2 - distance_from_A1**2 + xA1**2) / (2 * xA1))
+    ) / (2 * yA2)
+
+    return x, y
 
 
 def get_com_port():
@@ -61,11 +86,11 @@ def read_data():  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     Reads the data from the serial port, updates the UWB objects, and uploads the data to MongoDB.
     """
     line = ser.readline().decode("UTF-8").replace("\n", "")
-    print(f"Serial: {ser}")
+    # print(f"Serial: {ser}")
     try:
         data = json.loads(line)
-        print(f"Data: {data}")
-        print(f"Data identification: {data['id']}")
+        # print(f"Data: {data}")
+        # print(f"Data identification: {data['id']}")
 
         # tag[data["id"]].list = data["range"]
         # tag = data["range"]
@@ -73,10 +98,10 @@ def read_data():  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         # Add anchor coordinates to data
         data["anchor_coordinates"] = [
-            {"x": A0X, "y": A0Y},
-            {"x": A1X, "y": A1Y},
-            {"x": A2X, "y": A2Y},
-            {"x": A3X, "y": A3Y},
+            {"x": anchor_coordinates[0]["xA0"], "y": anchor_coordinates[0]["yA0"]},
+            {"x": anchor_coordinates[1]["xA1"], "y": anchor_coordinates[1]["yA1"]},
+            {"x": anchor_coordinates[2]["xA2"], "y": anchor_coordinates[2]["yA2"]},
+            {"x": anchor_coordinates[3]["xA3"], "y": anchor_coordinates[3]["yA3"]},
         ]
 
         # Insert data into MongoDB
@@ -95,12 +120,6 @@ tag = []
 anc_count = 4
 tag_count = 1
 
-# Define the anchor coordinates
-A0X, A0Y = 0, 0
-A1X, A1Y = 1000, 0
-A2X, A2Y = 1000, 1340
-A3X, A3Y = 0, 1340
-
 # Start the data reading loop !!!!!!!!!!!!!!!!
 ser.write("begin".encode("UTF-8"))
 ser.reset_input_buffer()
@@ -109,26 +128,26 @@ sc = SC()  # socket_connection object
 sc.tcp()
 try:  # Handle KeyboardInterrupt
     while True:
-        # print("A")
-        distance_from_anchors = get_coordinates_from_db()
+        line = ser.readline().decode("UTF-8").replace("\n", "")
+        data = json.loads(line)
+        # print(data["range"])
 
-        # Distances from each anchor
-        distance_from_A0 = int(distance_from_anchors[0][0])
-        # print (distance_from_A0)
-        distance_from_A1 = int(distance_from_anchors[0][1])
-        distance_from_A2 = int(distance_from_anchors[0][2])
+        distance_from_A0 = data["range"][0]
+        distance_from_A1 = data["range"][1]
+        distance_from_A2 = data["range"][2]
+        distance_from_A3 = data["range"][3]
 
         # Calculate the Aquabot's position
         x, y = calculate_aquabot_position(
             distance_from_A0, distance_from_A1, distance_from_A2
         )
-        # print(x, y)
+
         # Use any sentences here and send them to OpenCPN with serial.write((sentence + '\r\n').encode())
 
         # Create a minimal GGA sentence with only latitude and longitude
         gga = GEN.gga(
-            lat=51.917391069025456,  # latitude + (y / 1000000),
-            long=4.483918576388719,  # longitude + (x / 1000000),
+            lat=latitude + (y / 1000000),
+            long=longitude + (x / 1000000),
             fix_quality=1,
             satellites=10,
             horizontal_dilution_of_precision=0.1,
@@ -140,7 +159,8 @@ try:  # Handle KeyboardInterrupt
             correction_station_id="0000",
         )
         sc.change_data(gga)
-        print(f"| {sc.send_data()}")
+        # print(f"| {sc.send_data()}")
+        sc.send_data()
         read_data()
 
 except KeyboardInterrupt:
