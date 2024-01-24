@@ -56,38 +56,38 @@ def get_com_port():
     return ports[port_index].device
 
 
-# def read_data(): #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-#     """
-#     Reads the data from the serial port, updates the UWB objects, and uploads the data to MongoDB.
-#     """
-#     line = ser.readline().decode("UTF-8").replace("\n", "")
-#     print(ser)
-#     try:
-#         data = json.loads(line)
-#         print(data)
-#         print(data["id"])
+def read_data(): #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    """
+    Reads the data from the serial port, updates the UWB objects, and uploads the data to MongoDB.
+    """
+    line = ser.readline().decode("UTF-8").replace("\n", "")
+    print(f"Serial: {ser}")
+    try:
+        data = json.loads(line)
+        print(f"Data: {data}")
+        print(f"Data identification: {data['id']}")
 
-#         # tag[data["id"]].list = data["range"]
-#         tag = data["range"]
-#         tag[data["id"]].cal()
+        tag[data["id"]].list = data["range"]
+        # tag = data["range"]
+        tag[data["id"]].cal()
 
-#         # Add anchor coordinates to data
-#         data["anchor_coordinates"] = [
-#             {"x": A0X, "y": A0Y},
-#             {"x": A1X, "y": A1Y},
-#             {"x": A2X, "y": A2Y},
-#             {"x": A3X, "y": A3Y},
-#         ]
+        # Add anchor coordinates to data
+        data["anchor_coordinates"] = [
+            {"x": A0X, "y": A0Y},
+            {"x": A1X, "y": A1Y},
+            {"x": A2X, "y": A2Y},
+            {"x": A3X, "y": A3Y},
+        ]
 
-#         # Insert data into MongoDB
-#         collection.insert_one(data)
+        # Insert data into MongoDB
+        collection.insert_one(data)
 
-#     except ValueError:
-#         print("[LOG]" + line)
+    except ValueError:
+        print("[LOG]" + line)
 
 
 # Set up the serial port !!!!!!!!!!!!!!!!!!!!
-# ser = serial.Serial(get_com_port(), 115200)
+ser = serial.Serial(get_com_port(), 115200)
 
 # Initialize the anchor and tag UWB objects
 anc = []
@@ -102,11 +102,11 @@ A2X, A2Y = 1000, 1340
 A3X, A3Y = 0, 1340
 
 # Start the data reading loop !!!!!!!!!!!!!!!!
-# ser.write("begin".encode("UTF-8"))
-# ser.reset_input_buffer()
+ser.write("begin".encode("UTF-8"))
+ser.reset_input_buffer()
 
 sc = SC() #socket_connection object
-sc.udp()
+sc.tcp()
 try: #Handle KeyboardInterrupt
     while True:
         # print("A")
@@ -127,8 +127,8 @@ try: #Handle KeyboardInterrupt
 
         # Create a minimal GGA sentence with only latitude and longitude
         gga = GEN.gga(
-            lat=latitude + (y / 1000000),
-            long=longitude + (x / 1000000),
+            lat=51.917391069025456,  #latitude + (y / 1000000),
+            long=4.483918576388719, #longitude + (x / 1000000),
             fix_quality=1,
             satellites=10,
             horizontal_dilution_of_precision=0.1,
@@ -141,7 +141,7 @@ try: #Handle KeyboardInterrupt
         )
         sc.change_data(gga)
         print(f"| {sc.send_data()}")
-        # read_data()
+        read_data()
 
 except KeyboardInterrupt:
     print("--------------------------------------------------------------------------------")
