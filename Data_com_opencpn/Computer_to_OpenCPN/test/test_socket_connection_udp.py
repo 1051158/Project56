@@ -21,8 +21,6 @@ def socketConnection_udp(*, delay: float): #hostip:str, portOpen:int
                 
         while True:
             # Create a minimal GGA sentence with only latitude and longitude
-            global latitude
-            global longitude
             gga = gga_data + "\r\n" # Ensure to add line ending (\r\n) for NMEA sentences
         
             # Send the NMEA sentence to OpenCPN via UDP

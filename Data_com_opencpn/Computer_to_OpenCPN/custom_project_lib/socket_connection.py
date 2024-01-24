@@ -6,14 +6,14 @@ Hello, this is a socket connection class for OpenCPN.
 class SOCKET_CONNECTION:
     __data = None
     __socket = None
-    __socket_type = None
+    __protocol = None
     __openCPN_host = None
     __openCPN_port = None
 
     def __init__(self) -> None:
         self.__data = ""
         self.__socket = None
-        self.__socket_type = ""
+        self.__protocol = ""
         self.__openCPN_host = ""
         self.__openCPN_port = 0
     
@@ -23,7 +23,7 @@ class SOCKET_CONNECTION:
     '''
     TCP Socket Connection to OpenCPN
     '''
-    def tcp(self) -> None: 
+    def tcp(self) -> None:
         print("--------------------------------------------------------------------------------")
         print("| TCP Socket Connection to OpenCPN")
         print("| When using on Local machine, use either localhost or 127.0.0.1 as host")
@@ -34,12 +34,12 @@ class SOCKET_CONNECTION:
         print("--------------------------------------------------------------------------------")
 
         self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.__socket_type = "TCP"
+        self.__protocol = "TCP"
 
         try:
             # Connect to OpenCPN
             self.__socket.connect((self.__openCPN_host, self.__openCPN_port))
-            print("| [200] TCP Socket connection is established!")
+            print("| [~~~~~~~] TCP Socket connection is established!")
             print("--------------------------------------------------------------------------------")
         except ConnectionRefusedError as cre:
             print(f"| [X] Connection to OpenCPN at {self.__openCPN_host}:{self.__openCPN_port} was refused.")
@@ -67,16 +67,16 @@ class SOCKET_CONNECTION:
         print("--------------------------------------------------------------------------------")
 
         self.__socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.__socket_type = "UDP"
+        self.__protocol = "UDP"
 
-        print("| [200] UDP Socket connection is established!")
+        print("| [~~~~~~~] UDP Socket connection is established!")
         print("--------------------------------------------------------------------------------")
 
     '''
     Close the socket connection
     '''
     def close(self) -> None:
-        print("| [~~~----] Closing Socket Connection")
+        print("| [----~~~] Closing Socket Connection")
         print("--------------------------------------------------------------------------------")
         try:
             self.__socket.close()
@@ -95,11 +95,12 @@ class SOCKET_CONNECTION:
             sentence = self.__data
             # sentence = self.data + "\r\n"
         
-            # Send the NMEA sentence to OpenCPN via UDP
-            if self.__socket_type == "TCP":
+            # Send the NMEA sentence to OpenCPN via UDP/TCP
+            if self.__protocol == "TCP":
                 self.__socket.sendall(sentence.encode())
-            elif self.__socket_type == "UDP":
+            elif self.__protocol == "UDP":
                 self.__socket.sendto(sentence.encode(), (self.__openCPN_host, self.__openCPN_port))
+            self.__data = "" # Clear the data
 
             return sentence.replace("\r\n", "")
 

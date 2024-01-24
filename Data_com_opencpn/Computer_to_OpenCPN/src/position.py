@@ -167,7 +167,7 @@ except KeyboardInterrupt:
     print(
         "--------------------------------------------------------------------------------"
     )
-    print("| [!] Program is terminated by the user!")
+    print("| [~~~/---] Program is terminated by the user!")
     sc.close()
     exit()
 
