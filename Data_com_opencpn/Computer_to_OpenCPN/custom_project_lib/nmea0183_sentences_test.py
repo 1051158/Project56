@@ -1,4 +1,3 @@
-import unittest
 from .nmea0183_sentences import NMEA0183_GEN
 
 class NMEA0183_GEN_TEST:

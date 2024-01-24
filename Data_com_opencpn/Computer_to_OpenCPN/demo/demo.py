@@ -29,7 +29,7 @@ def serialConnection(*, delay: float):
     print("| Please use the same baud rate as the one set in OpenCPN, or use the default baud rate 4800")
     serial_port = input("| > Serial Port: ")  # OpenCPN's default port for NMEA data
     baud_rate = int(input("| > Baud Rate: "))  # OpenCPN's default port for NMEA data
-    increment = input("| > Increment latitude and longitude? (y/n): ") == "n"
+    increment = input("| > Increment latitude and longitude? (y/n): ")
 
     try:
         ser = serial.Serial(serial_port, baud_rate, timeout=1)
@@ -63,7 +63,7 @@ def serialConnection(*, delay: float):
         )  # Ensure to add line ending (\r\n) for NMEA sentences
 
         # Increment the latitude and longitude for the next update
-        if increment == "y":
+        if increment == "True":
             latitude[0] += -0.001
             longitude[0] += -0.009
 
@@ -78,7 +78,7 @@ def socketConnection_udp(*, delay: float): #hostip:str, portOpen:int
     print("| Please use the same port as the one set in OpenCPN, or use the default port 10110")
     host = input("| > OpenCPN/Host's IP-address: ")  # OpenCPN's IP address/HOST computer's ip address
     port = int(input("| > Listening port: "))  # OpenCPN's default port for NMEA data
-    increment = input("| > Increment latitude and longitude? (y/n): ") == "n"
+    increment = input("| > Increment latitude and longitude? (True/False): ")
 
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -105,7 +105,7 @@ def socketConnection_udp(*, delay: float): #hostip:str, portOpen:int
             # Send the NMEA sentence to OpenCPN via UDP
             udp_socket.sendto(gga.encode(), (host, port))
             # Increment the latitude and longitude for the next update
-            if increment == "y":
+            if increment == "True":
                 latitude[0] += -0.001
                 longitude[0] += -0.009
 
@@ -130,9 +130,10 @@ def socketConnection_tcp(*, delay: float):
     print("| Please use the same port as the one set in OpenCPN, or use the default port 10110")
     host = input("| > OpenCPN/Host's IP-address: ")  # OpenCPN's IP address/HOST computer's ip address
     port = int(input("| > Listening port: "))  # OpenCPN's default port for NMEA data
-    increment = input("| > Increment latitude and longitude? (y/n): ") == "n"
+    increment = input("| > Increment latitude and longitude? (True/False): ")
 
     tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
     try:
         # Connect to OpenCPN
         tcp_socket.connect((host, port))
@@ -170,7 +171,7 @@ def socketConnection_tcp(*, delay: float):
             tcp_socket.sendall(gga.encode())
 
             # Increment the latitude and longitude for the next update
-            if increment == "y":
+            if increment == "True":
                 latitude[0] += -0.001
                 longitude[0] += -0.009
 
@@ -180,71 +181,11 @@ def socketConnection_tcp(*, delay: float):
     except Exception as e:
         print(f"| [X] Error: {e}")
         print(f"| Host: {host}, Port: {port}")
-        print("--------------------------------------------------------------------------------")
         exit()
     finally:
         tcp_socket.close()
         ("[_] Socket closed.")
-
-def socketConnection_tcp_1s(*, delay: float, sentence: str = None, host: str = None, port: int = None, increment: str = None):
-    print("--------------------------------------------------------------------------------")
-    print("| TCP Socket Connection to OpenCPN")
-    print("| When using on Local machine, use either localhost or 127.0.0.1 as host")
-    print("| When using on Remote machine, use the IP address of the machine running OpenCPN")
-    print("| Please use the same port as the one set in OpenCPN, or use the default port 10110")
-    host = host or input("| > OpenCPN/Host's IP-address: ")  # OpenCPN's IP address/HOST computer's ip address
-    port = port or int(input("| > Listening port: "))  # OpenCPN's default port for NMEA data
-    increment = increment or input("| > Increment latitude and longitude? (y/n): ") == "n"
-
-    tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:
-        # Connect to OpenCPN
-        tcp_socket.connect((host, port))
-        print("| [200] TCP Socket connection is established!")
-    except ConnectionRefusedError as cre:
-        print(f"| [X] Connection to OpenCPN at {host}:{port} was refused.")
-        print(f"| [X] Error: {cre}")
         print("--------------------------------------------------------------------------------")
-        tcp_socket.close()
-        exit()
-    except Exception as e:
-        print(f"| [X] An error occurred: {e}")
-        print("--------------------------------------------------------------------------------")
-        tcp_socket.close()
-        exit()
-
-    try: 
-        # Create a minimal GGA sentence with only latitude and longitude
-        global latitude
-        global longitude
-        gga = (str(sentence) + "\n\r" if sentence is not None else None) or GEN.gga(  lat = latitude[0],
-                        long = longitude[0],
-                        fix_quality = 1,
-                        satellites = 10,
-                        horizontal_dilution_of_precision = 0.1,
-                        elevation_above_sea_level = 255.747,
-                        elevation_unit = "M",
-                        geoid = -32.00,
-                        geoid_unit = "M",
-                        age_of_correction_data_seconds = "01",
-                        correction_station_id = "0000") 
-        # + "\r\n" # Ensure to add line ending (\r\n) for NMEA sentences
-        # Send GGA data to OpenCPN
-        tcp_socket.sendall(gga.encode())
-
-        # Increment the latitude and longitude for the next update
-        if increment == "y":
-            latitude[0] += -0.001
-            longitude[0] += -0.009
-
-    except Exception as e:
-        print(f"| [X] Error: {e}")
-        print(f"| Host: {host}, Port: {port}")
-        print("--------------------------------------------------------------------------------")
-        exit()
-    finally:
-        tcp_socket.close()
-        ("[_] Socket closed.")
 
         
 # def mqttConnectionPublisher(*, delay: float): #incomplete
