@@ -247,83 +247,83 @@ def socketConnection_tcp_1s(*, delay: float, sentence: str = None, host: str = N
         ("[_] Socket closed.")
 
         
-def mqttConnectionPublisher(*, delay: float):
-    print("--------------------------------------------------------------------------------")
-    print("| MQTT Connection to OpenCPN as Publisher")
-    print("| Please use the same topic as the Subscriber, or use the default topic topic/gga")
-    print("| Please use the MQTT borker's IP address (host)")
-    print("| Please use the MQTT borker's port (port), default is 1883")
-    mqtt_broker_ip = input("| > MQTT Broker's IP-address: ")  # OpenCPN's IP address/HOST computer's ip address
-    topic = input("| > Topic: ")  # OpenCPN's default port for NMEA data
-    increment = input("| > Increment latitude and longitude? (y/n): ") == "n"
+# def mqttConnectionPublisher(*, delay: float): #incomplete
+#     print("--------------------------------------------------------------------------------")
+#     print("| MQTT Connection to OpenCPN as Publisher")
+#     print("| Please use the same topic as the Subscriber, or use the default topic topic/gga")
+#     print("| Please use the MQTT borker's IP address (host)")
+#     print("| Please use the MQTT borker's port (port), default is 1883")
+#     mqtt_broker_ip = input("| > MQTT Broker's IP-address: ")  # OpenCPN's IP address/HOST computer's ip address
+#     topic = input("| > Topic: ")  # OpenCPN's default port for NMEA data
+#     increment = input("| > Increment latitude and longitude? (y/n): ") == "n"
 
-    print("| [200] MQTT Publisher's data is sent")
-    while True:
-        # Create a minimal GGA sentence with only latitude and longitude
-        global latitude
-        global longitude
-        gga = GEN.gga(  lat = latitude[0],
-                        long = longitude[0],
-                        fix_quality = 1,
-                        satellites = 10,
-                        horizontal_dilution_of_precision = 0.1,
-                        elevation_above_sea_level = 255.747,
-                        elevation_unit = "M",
-                        geoid = -32.00,
-                        geoid_unit = "M",
-                        age_of_correction_data_seconds = "01",
-                        correction_station_id = "0000")
-        publish.single(f"topic/{topic}", gga, hostname=mqtt_broker_ip)
+#     print("| [200] MQTT Publisher's data is sent")
+#     while True:
+#         # Create a minimal GGA sentence with only latitude and longitude
+#         global latitude
+#         global longitude
+#         gga = GEN.gga(  lat = latitude[0],
+#                         long = longitude[0],
+#                         fix_quality = 1,
+#                         satellites = 10,
+#                         horizontal_dilution_of_precision = 0.1,
+#                         elevation_above_sea_level = 255.747,
+#                         elevation_unit = "M",
+#                         geoid = -32.00,
+#                         geoid_unit = "M",
+#                         age_of_correction_data_seconds = "01",
+#                         correction_station_id = "0000")
+#         publish.single(f"topic/{topic}", gga, hostname=mqtt_broker_ip)
 
-        # Increment the latitude and longitude for the next update
-        if increment == "y":
-            latitude[0] += -0.001
-            longitude[0] += -0.009
+#         # Increment the latitude and longitude for the next update
+#         if increment == "y":
+#             latitude[0] += -0.001
+#             longitude[0] += -0.009
 
-        time.sleep(delay)  # Adjust the interval as needed
+#         time.sleep(delay)  # Adjust the interval as needed
 
-def mqttConnectionSubsciber(*, delay: float):
-    # Define MQTT broker details
-    print("--------------------------------------------------------------------------------")
-    print("| MQTT Connection to OpenCPN as Subscriber")
-    broker_address = input("| > MQTT Broker's IP-address: ")  # OpenCPN's IP address/HOST computer's ip address
-    broker_port = int(input("| > MQTT Broker's port: "))  # OpenCPN's default port for NMEA data
-    topic = f"topic/{input('| > Topic: ')}" # OpenCPN's default port for NMEA data
-    host = input("| > OpenCPN/Host's IP-address: ")  # OpenCPN's IP address/HOST computer's ip address
-    port = int(input("| > Listening port: "))  # OpenCPN's default port for NMEA data
+# def mqttConnectionSubsciber(*, delay: float): #incomplete
+#     # Define MQTT broker details
+#     print("--------------------------------------------------------------------------------")
+#     print("| MQTT Connection to OpenCPN as Subscriber")
+#     broker_address = input("| > MQTT Broker's IP-address: ")  # OpenCPN's IP address/HOST computer's ip address
+#     broker_port = int(input("| > MQTT Broker's port: "))  # OpenCPN's default port for NMEA data
+#     topic = f"topic/{input('| > Topic: ')}" # OpenCPN's default port for NMEA data
+#     host = input("| > OpenCPN/Host's IP-address: ")  # OpenCPN's IP address/HOST computer's ip address
+#     port = int(input("| > Listening port: "))  # OpenCPN's default port for NMEA data
 
-    def on_connect(client, userdata, flags, rc):
-        print("Connected with result code "+str(rc))
-        # Subscribe to the GGA topic when connected
-        client.subscribe(topic)
+#     def on_connect(client, userdata, flags, rc):
+#         print("Connected with result code "+str(rc))
+#         # Subscribe to the GGA topic when connected
+#         client.subscribe(topic)
 
-    def on_message(client, userdata, msg):
-        # Parse and process the GGA data
-        gga_data = msg.payload.decode('utf-8')
-        process_gga_data(gga_data)
+#     def on_message(client, userdata, msg):
+#         # Parse and process the GGA data
+#         gga_data = msg.payload.decode('utf-8')
+#         process_gga_data(gga_data)
 
-    def process_gga_data(gga_data):
-        # You can customize this function to handle the GGA data as needed
-        print("Received GGA data: {}".format(gga_data))
-        # socketConnection_tcp_1s(delay=0.5, sentence=gga_data, host=host, port=port, increment="n")
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect((host, port))
-            s.sendall(gga_data.encode('utf-8'))
-            s.close()
-            s.shutdown(socket.SHUT_RDWR)
+#     def process_gga_data(gga_data):
+#         # You can customize this function to handle the GGA data as needed
+#         print("Received GGA data: {}".format(gga_data))
+#         # socketConnection_tcp_1s(delay=0.5, sentence=gga_data, host=host, port=port, increment="n")
+#         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+#             s.connect((host, port))
+#             s.sendall(gga_data.encode('utf-8'))
+#             s.close()
+#             s.shutdown(socket.SHUT_RDWR)
 
-    # Create an MQTT client instance
-    client = mqttClient.Client()
+#     # Create an MQTT client instance
+#     client = mqttClient.Client()
 
-    # Set up the callback functions
-    client.on_connect = on_connect
-    client.on_message = on_message
+#     # Set up the callback functions
+#     client.on_connect = on_connect
+#     client.on_message = on_message
 
-    # Connect to the MQTT broker
-    client.connect(broker_address, broker_port, 60)
+#     # Connect to the MQTT broker
+#     client.connect(broker_address, broker_port, 60)
 
-    # Start the MQTT client loop
-    client.loop_forever()
+#     # Start the MQTT client loop
+#     client.loop_forever()
 
 
 
