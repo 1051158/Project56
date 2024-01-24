@@ -127,8 +127,9 @@ def socketConnection_tcp(*, delay: float):
         # Connect to OpenCPN
         tcp_socket.connect((host, port))
         print("| [200] TCP Socket connection is established!")
-    except ConnectionRefusedError:
+    except ConnectionRefusedError as cre:
         print(f"| [X] Connection to OpenCPN at {host}:{port} was refused.")
+        print(f"| [X] Error: {cre}")
         print("--------------------------------------------------------------------------------")
         tcp_socket.close()
         exit()
