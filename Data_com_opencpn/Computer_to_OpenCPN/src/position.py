@@ -92,7 +92,6 @@ ser2 = serial.Serial(get_com_port(), 115200)
 
 # Initialize the anchor and tag UWB objects
 anc = []
-# placebo = []
 tag = []
 anc_count = 4
 tag_count = 1

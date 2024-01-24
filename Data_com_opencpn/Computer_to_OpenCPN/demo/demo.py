@@ -16,10 +16,10 @@ from ..custom_project_lib.nmea0183_sentences_test import NMEA0183_GEN_TEST as TE
 # serial_port = '/dev/ttyUSB0'
 
 # lat and long in degree minutes format(DM) at RDM Rotterdam, AquaLabs{Test}
-latitude = 51.89832516307501
-longitude = 4.418785646063367
+latitude = [51.89832516307501]
+longitude = [4.418785646063367]
 
-def serialConnection(port: str):
+def serialConnection():
     print("--------------------------------------------------------------------------------")
     print("| Serial Connection to OpenCPN")
     print("| Please use a different port than the one used by OpenCPN, because")
@@ -37,12 +37,11 @@ def serialConnection(port: str):
 
     while True:
         # Use any sentences here and send them to OpenCPN with serial.write((sentence + '\r\n').encode())
-        latitudeLocal = latitude
-        longitudeLocal = longitude
-
+        global latitude
+        global longitude
         # Create a minimal GGA sentence with only latitude and longitude
-        gga = GEN.gga(  lat = latitudeLocal,
-                        long = longitudeLocal,
+        gga = GEN.gga(  lat = latitude[0],
+                        long = longitude[0],
                         fix_quality = 1,
                         satellites = 10,
                         horizontal_dilution_of_precision = 0.1,
@@ -60,8 +59,8 @@ def serialConnection(port: str):
         )  # Ensure to add line ending (\r\n) for NMEA sentences
 
         # Increment the latitude and longitude for the next update
-        latitudeLocal += -0.001
-        longitudeLocal += -0.009
+        latitude[0] += -0.001
+        longitude[0] += -0.009
 
         # Wait for a few seconds before sending the next update
         time.sleep(0.5)
@@ -80,8 +79,10 @@ def socketConnection_udp(*, delay: float): #hostip:str, portOpen:int
     print("| [200] UDP Socket connection is established!")
     while True:
         # Create a minimal GGA sentence with only latitude and longitude
-        gga = GEN.gga(  lat = latitude,
-                        long = longitude,
+        global latitude
+        global longitude
+        gga = GEN.gga(  lat = latitude[0],
+                        long = longitude[0],
                         fix_quality = 1,
                         satellites = 10,
                         horizontal_dilution_of_precision = 0.1,
@@ -94,6 +95,9 @@ def socketConnection_udp(*, delay: float): #hostip:str, portOpen:int
         
         try: # Send the NMEA sentence to the serial port and catch any errors
             udp_socket.sendto(gga.encode(), (host, port))
+            # Increment the latitude and longitude for the next update
+            latitude[0] += -0.001
+            longitude[0] += -0.009
         except Exception as e:
             print(f"| [X] Error: {e}")
             print(f"| Host: {host}, Port: {port}")
@@ -105,4 +109,4 @@ def socketConnection_udp(*, delay: float): #hostip:str, portOpen:int
 
 # Use either Serial or Socket connection
 socketConnection_udp(delay=0.5)
-# serialConnection("COM1")
+# serialConnection()

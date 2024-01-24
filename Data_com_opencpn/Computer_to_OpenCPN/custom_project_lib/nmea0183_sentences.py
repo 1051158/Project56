@@ -22,6 +22,44 @@ class NMEA0183_GEN:
             else:
                 return "E"
     
+    # ------------------------------------------------------------[ Hxx Sentences ]------------------------------------------------------------
+    # HDM SENTENCE >>> $GPHDM,x.x,T
+    # Heading Magnetic
+    @staticmethod
+    def hdm(*, heading_degrees_magnetic: Optional[float] = None, magnetic = 'M') -> str:
+        return pynmea2.HDM('GP', 'HDM', (
+            str(heading_degrees_magnetic) or '',
+            str(magnetic)
+        )).render() + '\r\n'
+    
+    # HDG SENTENCE >>> $GPHDG,x.x,,,x.x,E
+    # Magnetic Heading, Deviation, Variation
+    @staticmethod
+    def hdg(*, 
+            magnetic_heading_degrees: Optional[float] = None, # Magnetic heading in degrees
+            deviation = '',  # Deviation in degrees
+            deviation_direction = '',  # Deviation direction, E or W
+            magnetic_variation_degrees: Optional[float] = None,  # Magnetic variation in degrees
+            magnetic_variation_direction = '' # Magnetic variation direction, E or W
+            ) -> str:
+        return pynmea2.HDG('GP', 'HDG', (
+            str(magnetic_heading_degrees) or '',
+            str(deviation),
+            str(deviation_direction),
+            str(magnetic_variation_degrees) or '',
+            str(magnetic_variation_direction)
+        )).render() + '\r\n'
+    
+    # HDT SENTENCE >>> $GPHDT,x.x,T
+    # Heading True
+    @staticmethod
+    def hdt(*, heading_degrees_true: Optional[float] = None, true = 'T') -> str:
+        return pynmea2.HDT('GP', 'HDT', (
+            str(heading_degrees_true) or '',
+            str(true)
+        )).render() + '\r\n'
+
+    # ------------------------------------------------------------[ Rxx Sentences ]------------------------------------------------------------
     # RMB SENTENCE >>> $GPRMB,A,x.x,a,c--c,d--d,llll.ll,e,yyyyy.yy,f,g.g,h.h,i.i
     # Recommended Minimum Navigation Information B
     @staticmethod
@@ -85,7 +123,8 @@ class NMEA0183_GEN:
             str(magnetic_direction),
             str(navigation_status)
         )).render() + '\r\n'
-        
+    
+    # ------------------------------------------------------------[ Gxx Sentences ]------------------------------------------------------------
     # GGA SENTENCE >>> $GPGGA,hhmmss.ss,llll.ll,a,yyyyy.yy,a,x,xx,x.x,x.x,M,x.x,M,x.x,xxxx
     # Global Positioning System Fix Data
     @staticmethod
@@ -185,6 +224,7 @@ class NMEA0183_GEN:
             str(status)
         )).render() + '\r\n'
     
+    # ------------------------------------------------------------[ Vxx Sentences ]------------------------------------------------------------
     # VTG SENTENCE >>> $GPVTG,x.x,T,x.x,M,x.x,N,x.x,K
     # Course Over Ground and Ground Speed
     @staticmethod
@@ -209,6 +249,7 @@ class NMEA0183_GEN:
             str(kmh)
         )).render() + '\r\n'
     
+    # ------------------------------------------------------------[ Zxx Sentences ]------------------------------------------------------------
     # ZDA SENTENCE >>> $GPZDA,hhmmss.ss,dd,mm,yyyy,xx,yy
     # Time & Date - UTC, day, month, year and local time zone
     @staticmethod
