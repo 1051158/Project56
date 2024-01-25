@@ -3,7 +3,6 @@
 import serial
 import serial.tools.list_ports
 import json
-import time
 from pymongo import MongoClient
 import certifi
 from ..custom_project_lib.nmea0183_sentences import (
@@ -12,6 +11,17 @@ from ..custom_project_lib.nmea0183_sentences import (
 from ..custom_project_lib.socket_connection import (
     SOCKET_CONNECTION as SC,
 )
+from scipy.optimize import minimize
+import numpy as np
+from multiprocessing import shared_memory
+import struct
+
+# Shared memory setup
+shared_memory_name = "coords_shm"
+coords_size = 8 * 2  # 2 floats (8 bytes each for double precision)
+
+# Create shared memory array
+shm = shared_memory.SharedMemory(name=shared_memory_name, create=True, size=coords_size)
 
 # lat and long in degree minutes format(DM) Between uk and ireland {Test}
 # latitude = 53.679746945954754
@@ -32,30 +42,58 @@ collection = db.trip1
 
 anchor_coordinates = [
     {"xA0": 0, "yA0": 0},
-    {"xA1": 580, "yA1": 0},
-    {"xA2": 580, "yA2": 550},
-    {"xA3": 0, "yA3": 550},
+    {"xA1": 0, "yA1": 800},
+    {"xA2": 300, "yA2": 800},
+    {"xA3": 300, "yA3": 0},
 ]
 
 
 # Function to calculate the Aquabot's position using the three-point algorithm
-def calculate_aquabot_position(distance_from_A0, distance_from_A1, distance_from_A2):
-    xA1 = anchor_coordinates[1]["xA1"]
-    xA2 = anchor_coordinates[2]["xA2"]
-    yA2 = anchor_coordinates[2]["yA2"]
-    # Calculate the Aquabot's position
-    x = (distance_from_A0**2 - distance_from_A1**2 + xA1**2) / (2 * xA1)
-    y = (
-        distance_from_A0**2
-        - distance_from_A2**2
-        + xA2**2
-        + yA2**2
-        - 2
-        * yA2
-        * ((distance_from_A0**2 - distance_from_A1**2 + xA1**2) / (2 * xA1))
-    ) / (2 * yA2)
+def calculate_tag_position(
+    distance_to_anchor1, distance_to_anchor2, distance_to_anchor3, distance_to_anchor4
+):
+    """
+    Calculate the position of the tag using trilateration with four anchors.
+    :param distance_to_anchor1: Distance from the tag to Anchor 1.
+    :param distance_to_anchor2: Distance from the tag to Anchor 2.
+    :param distance_to_anchor3: Distance from the tag to Anchor 3.
+    :param distance_to_anchor4: Distance from the tag to Anchor 4.
+    :return: (x, y) position of the tag.
+    """
+    # Define fixed anchor positions
+    anchor_positions = [
+        (anchor_coordinates[0]["xA0"], anchor_coordinates[0]["yA0"]),
+        (anchor_coordinates[1]["xA1"], anchor_coordinates[1]["yA1"]),
+        (anchor_coordinates[2]["xA2"], anchor_coordinates[2]["yA2"]),
+        (anchor_coordinates[3]["xA3"], anchor_coordinates[3]["yA3"]),
+    ]
 
-    return x, y
+    # Distances from tag to each anchor
+    distances = [
+        distance_to_anchor1,
+        distance_to_anchor2,
+        distance_to_anchor3,
+        distance_to_anchor4,
+    ]
+
+    # Objective function to minimize
+    def objective_function(point):
+        x, y = point
+        return sum(
+            (np.sqrt((x - ax) ** 2 + (y - ay) ** 2) - d) ** 2
+            for (ax, ay), d in zip(anchor_positions, distances)
+        )
+
+    # Initial guess: Use centroid of anchors
+    initial_guess = np.mean(anchor_positions, axis=0)
+
+    # Minimize the objective function
+    result = minimize(objective_function, initial_guess, method="Nelder-Mead")
+
+    if result.success:
+        return result.x
+    else:
+        raise ValueError("Optimization failed")
 
 
 def get_com_port():
@@ -81,14 +119,12 @@ def get_com_port():
     return ports[port_index].device
 
 
-def read_data():  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+def read_data(x, y):  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     """
     Reads the data from the serial port, updates the UWB objects, and uploads the data to MongoDB.
     """
-    line = ser.readline().decode("UTF-8").replace("\n", "")
     # print(f"Serial: {ser}")
     try:
-        data = json.loads(line)
         # print(f"Data: {data}")
         # print(f"Data identification: {data['id']}")
 
@@ -96,6 +132,8 @@ def read_data():  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         # tag = data["range"]
         # tag[data["id"]].cal()
 
+        data["x"] = x
+        data["y"] = y
         # Add anchor coordinates to data
         data["anchor_coordinates"] = [
             {"x": anchor_coordinates[0]["xA0"], "y": anchor_coordinates[0]["yA0"]},
@@ -103,6 +141,10 @@ def read_data():  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             {"x": anchor_coordinates[2]["xA2"], "y": anchor_coordinates[2]["yA2"]},
             {"x": anchor_coordinates[3]["xA3"], "y": anchor_coordinates[3]["yA3"]},
         ]
+        # print(data)
+        # remove data["range"] and data["id"] from data
+        data.pop("range")
+        data.pop("id")
 
         # Insert data into MongoDB
         collection.insert_one(data)
@@ -124,8 +166,8 @@ tag_count = 1
 ser.write("begin".encode("UTF-8"))
 ser.reset_input_buffer()
 
-sc = SC()  # socket_connection object
-sc.tcp()
+# sc = SC()  # socket_connection object
+# sc.tcp()
 try:  # Handle KeyboardInterrupt
     while True:
         line = ser.readline().decode("UTF-8").replace("\n", "")
@@ -138,37 +180,39 @@ try:  # Handle KeyboardInterrupt
         distance_from_A3 = data["range"][3]
 
         # Calculate the Aquabot's position
-        x, y = calculate_aquabot_position(
-            distance_from_A0, distance_from_A1, distance_from_A2
+        x, y = calculate_tag_position(
+            distance_from_A0, distance_from_A1, distance_from_A2, distance_from_A3
         )
+
+        struct.pack_into("dd", shm.buf, 0, x, y)  # 'dd' for two doubles
 
         # Use any sentences here and send them to OpenCPN with serial.write((sentence + '\r\n').encode())
 
         # Create a minimal GGA sentence with only latitude and longitude
-        gga = GEN.gga(
-            lat=latitude + (y / 1000000),
-            long=longitude + (x / 1000000),
-            fix_quality=1,
-            satellites=10,
-            horizontal_dilution_of_precision=0.1,
-            elevation_above_sea_level=255.747,
-            elevation_unit="M",
-            geoid=-32.00,
-            geoid_unit="M",
-            age_of_correction_data_seconds="01",
-            correction_station_id="0000",
-        )
-        sc.change_data(gga)
-        # print(f"| {sc.send_data()}")
-        sc.send_data()
-        read_data()
+        # gga = GEN.gga(
+        #     lat=latitude + (y / 1000000),
+        #     long=longitude + (x / 1000000),
+        #     fix_quality=1,
+        #     satellites=10,
+        #     horizontal_dilution_of_precision=0.1,
+        #     elevation_above_sea_level=255.747,
+        #     elevation_unit="M",
+        #     geoid=-32.00,
+        #     geoid_unit="M",
+        #     age_of_correction_data_seconds="01",
+        #     correction_station_id="0000",
+        # )
+        # sc.change_data(gga)
+        # # print(f"| {sc.send_data()}")
+        # sc.send_data()
+        read_data(x, y)
 
 except KeyboardInterrupt:
     print(
         "--------------------------------------------------------------------------------"
     )
     print("| [!] Program is terminated by the user!")
-    sc.close()
+    # sc.close()
     exit()
 
 # Compile with: python3 -m Data_com_opencpn.Computer_to_OpenCPN.src.position

@@ -2,30 +2,31 @@ from dash import Dash, html, dcc, Input, Output
 import plotly.express as px
 import pandas as pd
 import plotly.graph_objects as go
-from pymongo import MongoClient
-import certifi
-
+from multiprocessing import shared_memory
+import struct
 
 anchor_coordinates = [
-    {"xA0": 0, "yA0": 0},
-    {"xA1": 580, "yA1": 0},
-    {"xA2": 580, "yA2": 550},
-    {"xA3": 0, "yA3": 550},
+    {"x0": 0, "y0": 0},
+    {"x1": 0, "y1": 800},
+    {"x2": 300, "y2": 800},
+    {"x3": 300, "y3": 0},
 ]
+# Assuming anchor_coordinates is a list of dictionaries like [{'x0': 0, 'y0': 0}, {'x1': 0, 'y1': 800}, ...]
+# Get the maximum x value from the anchor coordinates
+max_x = max(coord[f"x{i}"] for i, coord in enumerate(anchor_coordinates))
 
-# Extracting maximum x and y values
-max_x = max(coord[f"xA{i}"] for i, coord in enumerate(anchor_coordinates))
-max_y = max(coord[f"yA{i}"] for i, coord in enumerate(anchor_coordinates))
+# Get the maximum y value from the anchor coordinates
+max_y = max(coord[f"y{i}"] for i, coord in enumerate(anchor_coordinates))
+
 
 # Convert anchor_coordinates to a DataFrame
 anchor_df = pd.DataFrame(
-    [(coord[f"xA{i}"], coord[f"yA{i}"]) for i, coord in enumerate(anchor_coordinates)],
+    [(coord[f"x{i}"], coord[f"y{i}"]) for i, coord in enumerate(anchor_coordinates)],
     columns=["x", "y"],
 )
 
 # Add the first point to the end to close the loop
 anchor_df = anchor_df._append(anchor_df.iloc[0], ignore_index=True)
-# anchor_df = anchor_df.append(anchor_df.iloc[0], ignore_index=True)
 
 # Create labels for each anchor point and repeat the first label at the end
 labels = [f"A{i}" for i in range(len(anchor_coordinates))] + ["A0"]
@@ -44,8 +45,8 @@ fig.update_layout(
     xaxis=dict(constrain="domain", showticklabels=False, title=""),
     plot_bgcolor="rgba(0,0,0,0)",
 )
-test_x = [120]
-test_y = [100]
+test_x = [50]
+test_y = [10]
 
 fig.add_trace(
     go.Scatter(
@@ -70,32 +71,10 @@ app.layout = html.Div(
             },
         ),
         dcc.Interval(
-            id="interval-component", interval=1 * 740, n_intervals=0  # in milliseconds
+            id="interval-component", interval=1 * 5, n_intervals=0  # in milliseconds
         ),
     ]
 )
-
-
-# Function to calculate the Aquabot's position using the three-point algorithm
-def calculate_aquabot_position(distance_from_A0, distance_from_A1, distance_from_A2):
-    # Coordinates of the anchor points
-    xA0, yA0 = anchor_df.iloc[0]
-    xA1, yA1 = anchor_df.iloc[1]
-    xA2, yA2 = anchor_df.iloc[2]
-
-    # Calculate the Aquabot's position
-    x = (distance_from_A0**2 - distance_from_A1**2 + xA1**2) / (2 * xA1)
-    y = (
-        distance_from_A0**2
-        - distance_from_A2**2
-        + xA2**2
-        + yA2**2
-        - 2
-        * yA2
-        * ((distance_from_A0**2 - distance_from_A1**2 + xA1**2) / (2 * xA1))
-    ) / (2 * yA2)
-
-    return x, y
 
 
 # Callback to update the Aquabot's position
@@ -103,37 +82,23 @@ def calculate_aquabot_position(distance_from_A0, distance_from_A1, distance_from
     Output("aquabot-graph", "figure"), [Input("interval-component", "n_intervals")]
 )
 def update_aquabot_position(n):
-    distance_from_anchors = get_coordinates_from_db()
-
-    # Distances from each anchor
-    distance_from_A0 = int(distance_from_anchors[0][0])
-    distance_from_A1 = int(distance_from_anchors[0][1])
-    distance_from_A2 = int(distance_from_anchors[0][2])
-
-    # Calculate the Aquabot's position
-    x, y = calculate_aquabot_position(
-        distance_from_A0, distance_from_A1, distance_from_A2
-    )
-
+    # Read coordinates from shared memory
     # Update the figure
-    fig.data[-1].x = [x]
-    fig.data[-1].y = [y]
+    try:
+        # Attach to the existing shared memory block
+        shm = shared_memory.SharedMemory(name="coords_shm")
+        # Read coordinates from shared memory
+        x, y = struct.unpack("dd", shm.buf[:16])  # Assuming double precision floats
+        shm.close()  # Close the shared memory block
 
-    return fig
+        fig.data[-1].x = [x]
+        fig.data[-1].y = [y]
 
-
-def get_coordinates_from_db():
-    uri = "mongodb+srv://aleniriskic:lr9iu3bI3WtRXLJa@aquabotcluster.lmorwiv.mongodb.net/?retryWrites=true&w=majority"
-    client = MongoClient(uri, tlsCAFile=certifi.where())
-    db = client.RangeData
-
-    collection = db["trip1"]
-    entries = collection.find()
-
-    # Assuming you want the last three ranges
-    ranges = [entry["range"] for entry in entries][-1:]
-
-    return ranges
+        return fig
+    except FileNotFoundError:
+        return "Shared memory not found. Is the producer script running?"
+    except Exception as e:
+        return f"An error occurred: {str(e)}"
 
 
 if __name__ == "__main__":
