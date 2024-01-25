@@ -187,7 +187,7 @@ try:  # Handle KeyboardInterrupt
 
         struct.pack_into("dd", shm.buf, 0, x, y)  # 'dd' for two doubles
 
-        # Use any sentences here and send them to OpenCPN with serial.write((sentence + '\r\n').encode())
+        # Use any sentences here and send them to OpenCPN
 
         # Create a minimal GGA sentence with only latitude and longitude
         gga = GEN.gga(
@@ -219,7 +219,7 @@ except KeyboardInterrupt:
         "--------------------------------------------------------------------------------"
     )
     print("| [~~~/---] Program is terminated by the user!")
-    # sc.close()
+    sc.close()
     exit()
 
 # Compile with: python3 -m Data_com_opencpn.Computer_to_OpenCPN.src.position
