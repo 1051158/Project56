@@ -128,25 +128,13 @@ def read_data(x, y):  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     """
     Reads the data from the serial port, updates the UWB objects, and uploads the data to MongoDB.
     """
-    # print(f"Serial: {ser}")
+    # print(f"Serial: {ser}")z
     try:
         # print(f"Data: {data}")
         # print(f"Data identification: {data['id']}")
 
         # tag[data["id"]].list = data["range"]
-        # tag = data["range"]
-        # tag[data["id"]].cal()
-
-        data["x"] = x
-        data["y"] = y
-        # Add anchor coordinates to data
-        data["anchor_coordinates"] = [
-            {"x": anchor_coordinates[0]["xA0"], "y": anchor_coordinates[0]["yA0"]},
-            {"x": anchor_coordinates[1]["xA1"], "y": anchor_coordinates[1]["yA1"]},
-            {"x": anchor_coordinates[2]["xA2"], "y": anchor_coordinates[2]["yA2"]},
-            {"x": anchor_coordinates[3]["xA3"], "y": anchor_coordinates[3]["yA3"]},
-        ]
-        # print(data)
+        # tag = data["range"
         # remove data["range"] and data["id"] from data
         data.pop("range")
         data.pop("id")
@@ -208,7 +196,7 @@ try:  # Handle KeyboardInterrupt
             correction_station_id="0000",
         )
 
-        hdt = GEN.hdt(heading=45.0, true="T")
+        hdt = GEN.hdt(heading_degrees_true=45.0, true="T")
 
         sc.change_data(gga)
         sc.send_data()
