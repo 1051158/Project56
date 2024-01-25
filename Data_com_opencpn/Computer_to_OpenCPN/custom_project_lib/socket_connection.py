@@ -26,10 +26,10 @@ class SOCKET_CONNECTION:
     '''
     def tcp(self) -> None:
         print("--------------------------------------------------------------------------------")
-        print(colorama.Back.CYAN, "| TCP Socket Connection to OpenCPN")
+        print("| TCP Socket Connection to OpenCPN")
         print("| When using on Local machine, use either localhost or 127.0.0.1 as host")
         print("| When using on Remote machine, use the IP address of the machine running OpenCPN")
-        print("| Please use the same port as the one set in OpenCPN, or use the default port 10110", colorama.Style.RESET_ALL)
+        print("| Please use the same port as the one set in OpenCPN, or use the default port 10110")
         self.__openCPN_host = input("| > OpenCPN/Host's IP-address: ")  # OpenCPN's IP address/HOST computer's ip address
         self.__openCPN_port = int(input("| > Listening port: "))  # OpenCPN's default port for NMEA data
         print("--------------------------------------------------------------------------------")
@@ -58,11 +58,11 @@ class SOCKET_CONNECTION:
     UDP Socket Connection to OpenCPN
     '''
     def udp(self) -> None:
-        print(colorama.Back.CYAN, "--------------------------------------------------------------------------------")
+        print("--------------------------------------------------------------------------------")
         print("| UDP Socket Connection to OpenCPN")
         print("| When using on Local machine, use either localhost or 127.0.0.1 as host")
         print("| When using on Remote machine, use the IP address of the machine running OpenCPN")
-        print("| Please use the same port as the one set in OpenCPN, or use the default port 10110", colorama.Style.RESET_ALL)
+        print("| Please use the same port as the one set in OpenCPN, or use the default port 10110")
         self.__openCPN_host = input("| > OpenCPN/Host's IP-address: ")  # OpenCPN's IP address/HOST computer's ip address
         self.__openCPN_port = int(input("| > Listening port: "))  # OpenCPN's default port for NMEA data
         print("--------------------------------------------------------------------------------")

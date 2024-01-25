@@ -100,6 +100,7 @@ def get_com_port():
     """
     Returns the COM port selected by the user.
     """
+    print("--------------------------------------------------------------------------------")
     ports = serial.tools.list_ports.comports()
     if len(ports) == 0:
         print("No COM ports available")
@@ -115,7 +116,7 @@ def get_com_port():
             port_index = int(input("Select COM port number: "))
         except ValueError:
             print("Please enter a valid number")
-
+    print("--------------------------------------------------------------------------------")
     return ports[port_index].device
 
 
@@ -166,8 +167,8 @@ tag_count = 1
 ser.write("begin".encode("UTF-8"))
 ser.reset_input_buffer()
 
-# sc = SC()  # socket_connection object
-# sc.tcp()
+sc = SC()  # socket_connection object
+sc.tcp() # TCP connection to OpenCPN, can also be udp()
 try:  # Handle KeyboardInterrupt
     while True:
         line = ser.readline().decode("UTF-8").replace("\n", "")
@@ -189,22 +190,28 @@ try:  # Handle KeyboardInterrupt
         # Use any sentences here and send them to OpenCPN with serial.write((sentence + '\r\n').encode())
 
         # Create a minimal GGA sentence with only latitude and longitude
-        # gga = GEN.gga(
-        #     lat=latitude + (y / 1000000),
-        #     long=longitude + (x / 1000000),
-        #     fix_quality=1,
-        #     satellites=10,
-        #     horizontal_dilution_of_precision=0.1,
-        #     elevation_above_sea_level=255.747,
-        #     elevation_unit="M",
-        #     geoid=-32.00,
-        #     geoid_unit="M",
-        #     age_of_correction_data_seconds="01",
-        #     correction_station_id="0000",
-        # )
-        # sc.change_data(gga)
-        # # print(f"| {sc.send_data()}")
-        # sc.send_data()
+        gga = GEN.gga(
+            lat=latitude + (y / 1000000),
+            long=longitude + (x / 1000000),
+            fix_quality=1,
+            satellites=10,
+            horizontal_dilution_of_precision=0.1,
+            elevation_above_sea_level=255.747,
+            elevation_unit="M",
+            geoid=-32.00,
+            geoid_unit="M",
+            age_of_correction_data_seconds="01",
+            correction_station_id="0000",
+        )
+
+        hdt = GEN.hdt(heading=45.0, true="T")
+        
+        sc.change_data(gga)
+        sc.send_data()
+
+        sc.change_data(hdt)
+        sc.send_data()
+
         read_data(x, y)
 
 except KeyboardInterrupt:
