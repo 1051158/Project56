@@ -1,5 +1,5 @@
 import socket
-import time
+import colorama
 '''
 Hello, this is a socket connection class for OpenCPN.
 '''
@@ -16,6 +16,7 @@ class SOCKET_CONNECTION:
         self.__protocol = ""
         self.__openCPN_host = ""
         self.__openCPN_port = 0
+        colorama.init() # Initialize colorama
     
     def change_data(self, data: str) -> None:
         self.__data = data
