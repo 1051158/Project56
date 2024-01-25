@@ -211,13 +211,8 @@ except KeyboardInterrupt:
     print(
         "--------------------------------------------------------------------------------"
     )
-<<<<<<< HEAD
-    print("| [!] Program is terminated by the user!")
-    # sc.close()
-=======
     print("| [~~~/---] Program is terminated by the user!")
-    sc.close()
->>>>>>> origin/main
+    # sc.close()
     exit()
 
 # Compile with: python3 -m Data_com_opencpn.Computer_to_OpenCPN.src.position
