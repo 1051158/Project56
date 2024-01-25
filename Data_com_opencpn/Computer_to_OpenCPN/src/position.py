@@ -100,7 +100,9 @@ def get_com_port():
     """
     Returns the COM port selected by the user.
     """
-    print("--------------------------------------------------------------------------------")
+    print(
+        "--------------------------------------------------------------------------------"
+    )
     ports = serial.tools.list_ports.comports()
     if len(ports) == 0:
         print("No COM ports available")
@@ -116,7 +118,9 @@ def get_com_port():
             port_index = int(input("Select COM port number: "))
         except ValueError:
             print("Please enter a valid number")
-    print("--------------------------------------------------------------------------------")
+    print(
+        "--------------------------------------------------------------------------------"
+    )
     return ports[port_index].device
 
 
@@ -168,11 +172,7 @@ ser.write("begin".encode("UTF-8"))
 ser.reset_input_buffer()
 
 sc = SC()  # socket_connection object
-<<<<<<< HEAD
-sc.tcp()
-=======
-sc.tcp() # TCP connection to OpenCPN, can also be udp()
->>>>>>> origin/main
+sc.tcp()  # TCP connection to OpenCPN, can also be udp()
 try:  # Handle KeyboardInterrupt
     while True:
         line = ser.readline().decode("UTF-8").replace("\n", "")
@@ -207,21 +207,15 @@ try:  # Handle KeyboardInterrupt
             age_of_correction_data_seconds="01",
             correction_station_id="0000",
         )
-<<<<<<< HEAD
-        sc.change_data(gga)
-        # print(f"| {sc.send_data()}")
-        sc.send_data()
-=======
 
         hdt = GEN.hdt(heading=45.0, true="T")
-        
+
         sc.change_data(gga)
         sc.send_data()
 
         sc.change_data(hdt)
         sc.send_data()
 
->>>>>>> origin/main
         read_data(x, y)
 
 except KeyboardInterrupt:
