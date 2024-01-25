@@ -1,9 +1,14 @@
 import socket
 import colorama
-'''
-Hello, this is a socket connection class for OpenCPN.
-'''
+
 class SOCKET_CONNECTION:
+    '''
+    This class is used to send data to OpenCPN via TCP/UDP socket connection.
+    OpenCPN must be configured to listen to the same port as the one set in this class.
+    1. First, call tcp() or udp() to establish a socket connection to OpenCPN.
+    2. Then, call send_data() to send the data to OpenCPN.
+    3. Finally, call close() to close the socket connection.
+    '''
     __data = None
     __socket = None
     __protocol = None
@@ -19,12 +24,20 @@ class SOCKET_CONNECTION:
         colorama.init() # Initialize colorama
     
     def change_data(self, data: str) -> None:
+        '''
+        Change the data to be sent to OpenCPN.
+        '''
         self.__data = data
 
-    '''
-    TCP Socket Connection to OpenCPN
-    '''
+    
     def tcp(self) -> None:
+        '''
+        TCP Socket Connection to OpenCPN.
+        Need to be called before send_data().
+        - ip: OpenCPN's IP address/HOST computer's ip address.
+        - port: OpenCPN's default port for NMEA data/Listening port.
+        '''
+
         print("--------------------------------------------------------------------------------")
         print("| TCP Socket Connection to OpenCPN")
         print("| When using on Local machine, use either localhost or 127.0.0.1 as host")
@@ -54,10 +67,14 @@ class SOCKET_CONNECTION:
             self.__socket.close()
             exit()
 
-    '''
-    UDP Socket Connection to OpenCPN
-    '''
+    
     def udp(self) -> None:
+        '''
+        UDP Socket Connection to OpenCPN.
+        Need to be called before send_data().
+        - ip: OpenCPN's IP address/HOST computer's ip address.
+        - port: OpenCPN's default port for NMEA data/Listening port.
+        '''
         print("--------------------------------------------------------------------------------")
         print("| UDP Socket Connection to OpenCPN")
         print("| When using on Local machine, use either localhost or 127.0.0.1 as host")
@@ -73,10 +90,10 @@ class SOCKET_CONNECTION:
         print("| [~~~~~~~] UDP Socket connection is established!")
         print("--------------------------------------------------------------------------------")
 
-    '''
-    Close the socket connection
-    '''
     def close(self) -> None:
+        '''
+        Close the socket connection
+        '''
         print("| [----~~~] Closing Socket Connection")
         print("--------------------------------------------------------------------------------")
         try:
@@ -88,10 +105,12 @@ class SOCKET_CONNECTION:
             print("--------------------------------------------------------------------------------")
             exit()
 
-    '''
-    Send the data to OpenCPN
-    '''
+    
     def send_data(self) -> str:
+        '''
+        Send the data to OpenCPN.
+        Any data sent to OpenCPN must be in NMEA format.
+        '''
         try: # Send the NMEA sentence to the serial port and catch any errors
             sentence = self.__data
             # sentence = self.data + "\r\n"

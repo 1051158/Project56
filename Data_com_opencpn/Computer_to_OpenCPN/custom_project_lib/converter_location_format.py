@@ -1,6 +1,22 @@
 class CONVERTER:
+    '''
+    This class is used to convert the location format from one to another
+    Currently, it supports the following conversions:
+    - DD to DM
+    '''
     @staticmethod
     def DD_DM(geographic_coordinate_system: str, decimal_degrees: str): #decimal degree -> degrees minutes
+        '''
+        This function converts the location format from decimal degree to degrees minutes.
+        - geographic_coordinate_system: "lat" or "long" or "latitude" or "longitude"
+        - decimal_degrees: decimal degree
+        \n
+        Return: degrees minutes format
+        \n
+        Example:
+        - Input: DD_DM("lat", 53.679746945954754)
+        - Output: 5339.19
+        '''
         try: #Check for correct format of decimal_degree (any number format)
             float(decimal_degrees)
         except ValueError:
