@@ -26,7 +26,7 @@ shm = shared_memory.SharedMemory(name=shared_memory_name, create=True, size=coor
 # lat and long in degree minutes format(DM) Between uk and ireland {Test}
 # latitude = 53.679746945954754
 # longitude = -5.167506462247125
-latitude, longitude = 51.91729442274804, 4.483863721865191
+latitude, longitude = 51.91735281648919, 4.483809124878688
 
 # Define color constants
 RED = [255, 0, 0]
@@ -42,9 +42,9 @@ collection = db.trip1
 
 anchor_coordinates = [
     {"xA0": 0, "yA0": 0},
-    {"xA1": 0, "yA1": 800},
-    {"xA2": 300, "yA2": 800},
-    {"xA3": 300, "yA3": 0},
+    {"xA1": 350, "yA1": 0},
+    {"xA2": 350, "yA2": 350},
+    {"xA3": 0, "yA3": 350},
 ]
 
 
@@ -166,8 +166,8 @@ tag_count = 1
 ser.write("begin".encode("UTF-8"))
 ser.reset_input_buffer()
 
-# sc = SC()  # socket_connection object
-# sc.tcp()
+sc = SC()  # socket_connection object
+sc.tcp()
 try:  # Handle KeyboardInterrupt
     while True:
         line = ser.readline().decode("UTF-8").replace("\n", "")
@@ -189,22 +189,22 @@ try:  # Handle KeyboardInterrupt
         # Use any sentences here and send them to OpenCPN with serial.write((sentence + '\r\n').encode())
 
         # Create a minimal GGA sentence with only latitude and longitude
-        # gga = GEN.gga(
-        #     lat=latitude + (y / 1000000),
-        #     long=longitude + (x / 1000000),
-        #     fix_quality=1,
-        #     satellites=10,
-        #     horizontal_dilution_of_precision=0.1,
-        #     elevation_above_sea_level=255.747,
-        #     elevation_unit="M",
-        #     geoid=-32.00,
-        #     geoid_unit="M",
-        #     age_of_correction_data_seconds="01",
-        #     correction_station_id="0000",
-        # )
-        # sc.change_data(gga)
-        # # print(f"| {sc.send_data()}")
-        # sc.send_data()
+        gga = GEN.gga(
+            lat=latitude + (y / 1000000),
+            long=longitude + (x / 1000000),
+            fix_quality=1,
+            satellites=10,
+            horizontal_dilution_of_precision=0.1,
+            elevation_above_sea_level=255.747,
+            elevation_unit="M",
+            geoid=-32.00,
+            geoid_unit="M",
+            age_of_correction_data_seconds="01",
+            correction_station_id="0000",
+        )
+        sc.change_data(gga)
+        # print(f"| {sc.send_data()}")
+        sc.send_data()
         read_data(x, y)
 
 except KeyboardInterrupt:
@@ -212,7 +212,7 @@ except KeyboardInterrupt:
         "--------------------------------------------------------------------------------"
     )
     print("| [~~~/---] Program is terminated by the user!")
-    # sc.close()
+    sc.close()
     exit()
 
 # Compile with: python3 -m Data_com_opencpn.Computer_to_OpenCPN.src.position

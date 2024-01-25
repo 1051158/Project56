@@ -7,9 +7,9 @@ import struct
 
 anchor_coordinates = [
     {"x0": 0, "y0": 0},
-    {"x1": 0, "y1": 800},
-    {"x2": 300, "y2": 800},
-    {"x3": 300, "y3": 0},
+    {"x1": 350, "y1": 0},
+    {"x2": 350, "y2": 350},
+    {"x3": 0, "y3": 350},
 ]
 # Assuming anchor_coordinates is a list of dictionaries like [{'x0': 0, 'y0': 0}, {'x1': 0, 'y1': 800}, ...]
 # Get the maximum x value from the anchor coordinates
