@@ -1,5 +1,5 @@
 import socket
-import time
+import colorama
 '''
 Hello, this is a socket connection class for OpenCPN.
 '''
@@ -16,6 +16,7 @@ class SOCKET_CONNECTION:
         self.__protocol = ""
         self.__openCPN_host = ""
         self.__openCPN_port = 0
+        colorama.init() # Initialize colorama
     
     def change_data(self, data: str) -> None:
         self.__data = data
@@ -25,10 +26,10 @@ class SOCKET_CONNECTION:
     '''
     def tcp(self) -> None:
         print("--------------------------------------------------------------------------------")
-        print("| TCP Socket Connection to OpenCPN")
+        print(colorama.Back.CYAN, "| TCP Socket Connection to OpenCPN")
         print("| When using on Local machine, use either localhost or 127.0.0.1 as host")
         print("| When using on Remote machine, use the IP address of the machine running OpenCPN")
-        print("| Please use the same port as the one set in OpenCPN, or use the default port 10110")
+        print("| Please use the same port as the one set in OpenCPN, or use the default port 10110", colorama.Style.RESET_ALL)
         self.__openCPN_host = input("| > OpenCPN/Host's IP-address: ")  # OpenCPN's IP address/HOST computer's ip address
         self.__openCPN_port = int(input("| > Listening port: "))  # OpenCPN's default port for NMEA data
         print("--------------------------------------------------------------------------------")
@@ -57,11 +58,11 @@ class SOCKET_CONNECTION:
     UDP Socket Connection to OpenCPN
     '''
     def udp(self) -> None:
-        print("--------------------------------------------------------------------------------")
+        print(colorama.Back.CYAN, "--------------------------------------------------------------------------------")
         print("| UDP Socket Connection to OpenCPN")
         print("| When using on Local machine, use either localhost or 127.0.0.1 as host")
         print("| When using on Remote machine, use the IP address of the machine running OpenCPN")
-        print("| Please use the same port as the one set in OpenCPN, or use the default port 10110")
+        print("| Please use the same port as the one set in OpenCPN, or use the default port 10110", colorama.Style.RESET_ALL)
         self.__openCPN_host = input("| > OpenCPN/Host's IP-address: ")  # OpenCPN's IP address/HOST computer's ip address
         self.__openCPN_port = int(input("| > Listening port: "))  # OpenCPN's default port for NMEA data
         print("--------------------------------------------------------------------------------")
