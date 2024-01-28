@@ -182,3 +182,10 @@ Proper configuration of both hardware and software components is essential for t
    - For production environments, it's important to enable authentication.
    - Create an admin user and then a user for your database with appropriate permissions.
    - More details on setting up authentication can be found in the [MongoDB Security Checklist](https://docs.mongodb.com/manual/administration/security-checklist/).
+
+## Run
+
+### Step 1: run position.py
+   - Use the following command: python3 -m Data_com_opencpn.Computer_to_OpenCPN.src.position.py
+### Step 2: run dashapp.py
+   - python3 dashapp.py
