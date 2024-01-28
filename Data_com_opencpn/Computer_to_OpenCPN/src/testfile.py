@@ -89,4 +89,5 @@ coordinate_list = []
 coordinate_list = generate_and_update_coordinates(coordinate_list)
 coordinate_list = generate_and_update_coordinates(coordinate_list)
 
-heading = calculate_heading(coordinate_list[0], coordinate_list[1])
+print(calculate_heading(coordinate_list[0], coordinate_list[1]))
+print(get_compass_direction(calculate_heading(coordinate_list[0], coordinate_list[1])))
