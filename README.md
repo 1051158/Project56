@@ -128,7 +128,7 @@ This project involves both Arduino and Python components. Follow these steps to 
       ```
       python3 -m Data_com_opencpn.Computer_to_OpenCPN.src.position
       ```
-      This is only for when the project is opened at its root(Project56 directory). When you open the project at any lower branches, please adjust the package path accordingly. For example, when the project is opened at `Project56/Data_com_opencpn/Cpmputer_to_OpenCPN/src`, then the bash will look like this:
+      This is only for when the project is opened at its root(Project56 directory). When you open the project at any lower branches, please adjust the package path accordingly. For example, when the project is opened at `Project56/Data_com_opencpn/Computer_to_OpenCPN/src`, then the bash will look like this:
       ```
       python3 -m position
       ```
