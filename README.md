@@ -1,16 +1,15 @@
 ### Handleiding
 
-There are 2 possibilities to connect this code to OpenCPN. Either via UDP or Serial. <br>
-Please look at demo.py in the demo directory to diffrentiate which data is required.
+There are 2 possibilities to connect this code to OpenCPN. Either via UDP or TCP. <br>
 
 ## Set-up
-For connecting via Udp or serial, we need to set up OpenCPN first. If you don't have OpenCPN, please download via this link: https://opencpn.org/OpenCPN/info/downloadopencpn.html
+For connecting via Udp or TCP, we need to set up OpenCPN first. If you don't have OpenCPN, please download via this link: https://opencpn.org/OpenCPN/info/downloadopencpn.html
 or just look up OpenCPN and go to the one with a url that looks like this https://opencpn.org/ then Downloads>OpenCPN Latest Release
 
 Follow the instructions to install OpenCPN. When installed, you should be able to open the app.
 
 ## TCP/UDP
-To use a UDP connection, first follow this path in the application Options(Gear icon)/Connections
+To use a TCP or UDP connection, first follow this path in the application Options(Gear icon)/Connections
 
 Click on `Add connection` and so the following:
 - Choose **Network**
