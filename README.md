@@ -87,3 +87,58 @@ These dependencies are included in the `.py` Python scripts:
 - **typing (Optional)**: A module for support of type hints.
 - **socket**: A module for creating socket connections.
 - **colorama**: A module for colored terminal text.
+
+## Installation
+
+This project involves both Arduino and Python components. Follow these steps to set up each part of the project.
+
+### Arduino Setup
+
+1. **Install the Arduino IDE**: If you haven't already, download and install the Arduino IDE from [the official Arduino website](https://www.arduino.cc/en/Main/Software).
+
+2. **Connect Your Arduino Device**: Connect your Arduino board to your computer using a USB cable.
+
+3. **Install Required Libraries**:
+   - Open the Arduino IDE.
+   - Go to `Sketch` > `Include Library` > `Manage Libraries...`.
+   - Search for and install the following libraries:
+     - `Wire`
+     - `Adafruit GFX Library`
+     - `Adafruit SSD1306`
+
+4. **Load the Arduino Sketch**:
+   - Open the `.ino` file for your project in the Arduino IDE.
+   - Select the correct board and port under `Tools`.
+
+5. **Upload the Sketch**:
+   - Click on the upload button in the Arduino IDE to upload the sketch to your Arduino board.
+
+### Python Environment Setup
+
+1. **Install Python**: Ensure that Python is installed on your system. You can download it from [the official Python website](https://www.python.org/downloads/).
+
+2. **Set Up a Virtual Environment (Optional but Recommended)**:
+   - Open a terminal or command prompt.
+   - Navigate to your project directory.
+   - Create a virtual environment: `python -m venv venv`
+   - Activate the virtual environment:
+     - On Windows: `venv\Scripts\activate`
+     - On macOS/Linux: `source venv/bin/activate`
+
+3. **Install Python Dependencies**:
+   - While in your project directory and with the virtual environment activated, run:
+     ```
+     pip install dash pandas plotly scipy pymongo serial pynmea2 colorama
+     ```
+
+4. **Running Python Scripts**:
+   - Navigate to the directory containing the Python scripts.
+   - Run the scripts using Python. For example:
+     ```
+     python dashapp.py
+     ```
+
+### Post-Installation Checks
+
+- After installing both the Arduino and Python components, ensure that all devices are correctly connected and the software is running without errors.
+- Check that the Arduino board is communicating correctly with the Python scripts, if required by your project setup.
