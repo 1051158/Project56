@@ -55,3 +55,35 @@ Click on `Add connection` and so the following:
 - Check **Control checksum**
 - Check **Receive input on this Port**
 - For `Input filtering` you can choose **Ignore sentences** and leave the field under blank
+
+## Dependencies
+
+To ensure the proper functioning of this project, various libraries and frameworks are utilized in both the Arduino and Python components. Below is a detailed list of these dependencies:
+
+### Arduino Dependencies
+The following libraries are used in the `.ino` Arduino sketches:
+
+- **Wire.h**: A library for I2C communication, commonly used for interfacing with sensors and devices.
+- **Adafruit_GFX.h**: A graphics library used for drawing text, shapes, and images on small displays.
+- **Adafruit_SSD1306.h**: A library specifically for controlling the Adafruit SSD1306 OLED display.
+- **Arduino.h**: Standard Arduino library.
+
+### Python Dependencies
+These dependencies are included in the `.py` Python scripts:
+
+- **dash**: A Python framework for building interactive web applications.
+- **html, dcc (from dash)**: Components of Dash for creating HTML elements and interactive components.
+- **plotly.express, plotly.graph_objects**: Plotly libraries for creating interactive plots and graphs.
+- **pandas**: A data manipulation and analysis library.
+- **multiprocessing**: A built-in Python module for parallel processing.
+- **struct**: A module for converting between Python values and C structs.
+- **serial**: A module for serial communication with devices.
+- **pymongo**: A MongoDB driver for Python.
+- **certifi**: A Python package for providing Mozilla's CA Bundle.
+- **scipy.optimize**: A module for optimization and root finding.
+- **numpy**: A package for scientific computing.
+- **pynmea2**: A library for parsing NMEA 0183 sentences.
+- **datetime (from datetime)**: A module for manipulating dates and times.
+- **typing (Optional)**: A module for support of type hints.
+- **socket**: A module for creating socket connections.
+- **colorama**: A module for colored terminal text.
