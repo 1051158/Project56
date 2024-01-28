@@ -128,7 +128,7 @@ This project involves both Arduino and Python components. Follow these steps to 
 3. **Install Python Dependencies**:
    - While in your project directory and with the virtual environment activated, run:
      ```
-     pip install dash pandas plotly scipy pymongo serial pynmea2 colorama
+     pip install dash pandas plotly scipy pymongo serial certifi pynmea2 colorama
      ```
 
 4. **Running Python Scripts**:
