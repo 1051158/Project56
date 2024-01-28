@@ -128,20 +128,28 @@ def read_data(x, y):  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     """
     Reads the data from the serial port, updates the UWB objects, and uploads the data to MongoDB.
     """
-    # print(f"Serial: {ser}")z
+    # print(f"Serial: {ser}")
     try:
         # print(f"Data: {data}")
         # print(f"Data identification: {data['id']}")
-
         # tag[data["id"]].list = data["range"]
-        # tag = data["range"
+        # tag = data["range"]
+        # tag[data["id"]].cal()
+        data["x"] = x
+        data["y"] = y
+        # Add anchor coordinates to data
+        data["anchor_coordinates"] = [
+            {"x": anchor_coordinates[0]["xA0"], "y": anchor_coordinates[0]["yA0"]},
+            {"x": anchor_coordinates[1]["xA1"], "y": anchor_coordinates[1]["yA1"]},
+            {"x": anchor_coordinates[2]["xA2"], "y": anchor_coordinates[2]["yA2"]},
+            {"x": anchor_coordinates[3]["xA3"], "y": anchor_coordinates[3]["yA3"]},
+        ]
+        # print(data)
         # remove data["range"] and data["id"] from data
         data.pop("range")
         data.pop("id")
-
         # Insert data into MongoDB
         collection.insert_one(data)
-
     except ValueError:
         print("[LOG]" + line)
 
