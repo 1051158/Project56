@@ -1,0 +1,9 @@
+PO:
+	Jan Scholtens
+Leden:
+	Alen Iriškic (1051158)
+	Iqbal Muhammad Tawakkal Sobari (1035607)
+	Nguyen Do (1057048)
+	Wen Hao You (1028905)
+
+Versie 1: Gelegenheid 1: 29/01/2024
