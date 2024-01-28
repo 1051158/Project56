@@ -188,4 +188,4 @@ Proper configuration of both hardware and software components is essential for t
 ### Step 1: run position.py
    - Use the following command: python3 -m Data_com_opencpn.Computer_to_OpenCPN.src.position.py
 ### Step 2: run dashapp.py
-   - python3 dashapp.py
+   - Use the following command: python3 dashapp.py
