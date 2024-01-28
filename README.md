@@ -9,12 +9,12 @@ or just look up OpenCPN and go to the one with a url that looks like this https:
 
 Follow the instructions to install OpenCPN. When installed, you should be able to open the app.
 
-## UDP
+## TCP/UDP
 To use a UDP connection, first follow this path in the application Options(Gear icon)/Connections
 
 Click on `Add connection` and so the following:
 - Choose **Network**
-- Choose for `Protocol` TCP/**UDP**/GPSD/Signal K
+- Choose for `Protocol` **TCP**/**UDP**/GPSD/Signal K
 - Leave `Address` Empty(or 127.0.0.1 or localhost)
 - `DataPort` can be empty(default **10110**) or choose any unoccupied one that you like
 - `User Comment` is empty
@@ -38,23 +38,7 @@ MAC: System Settings/Network/Wi-Fi/Details... and look at your ip address
 
 Linux: ```hostname -l``` or ```ifconfig```
 
-Please only use IPv4.
-
-## Serial
-You need a virtual serial port emulator to make a port pair with one of them being the data sender(code) and the other is data receiver(OpenCPN).
-
-To use a Serial connection, first follow this path in the application Options(Gear icon)/Connections
-
-Click on `Add connection` and so the following:
-- Choose **Serial**
-- Choose for `DataPort` the latter port that was mentioned.
-- Put `Protocol` as NMEA 0183
-- `Baudrate` can be can be to your liking, but both code and openCPN should have the same valueddd
-- Leave `List position` as it be
-- `User Comment` is empty
-- Check **Control checksum**
-- Check **Receive input on this Port**
-- For `Input filtering` you can choose **Ignore sentences** and leave the field under blank
+Please only use **IPv4**.
 
 ## Dependencies
 
@@ -137,6 +121,18 @@ This project involves both Arduino and Python components. Follow these steps to 
      ```
      python dashapp.py
      ```
+   - For `position.py`, due to it's using the local packages in custom_project_lib, a different way of running the script is required:
+      ```
+      python -m Data_com_opencpn.Computer_to_OpenCPN.src.position
+      ```
+      or
+      ```
+      python3 -m Data_com_opencpn.Computer_to_OpenCPN.src.position
+      ```
+      This is only for when the project is opened at its root(Project56 directory). When you open the project at any lower branches, please adjust the package path accordingly. For example, when the project is opened at `Project56/Data_com_opencpn/Cpmputer_to_OpenCPN/src`, then the bash will look like this:
+      ```
+      python3 -m position
+      ```
 
 ### Post-Installation Checks
 
